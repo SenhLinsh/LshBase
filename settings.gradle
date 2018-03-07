@@ -1,0 +1,10 @@
+include ':app', ':base'
+
+
+include ':Utils-Everywhere'
+project(':Utils-Everywhere').projectDir = new File('../Utils-Everywhere/')
+include ':Utils-Everywhere:utils'
+
+include ':LshUtils'
+project(':LshUtils').projectDir = new File('../LshUtils/')
+include ':LshUtils:lshutils'
