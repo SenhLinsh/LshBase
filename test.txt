@@ -1,0 +1,96 @@
+
+    
+    interface onKeyMultiple {
+boolean onKeyMultiple(int keyCode, int repeatCount, KeyEvent event) ;}
+
+    
+    interface onKeyShortcut {
+boolean onKeyShortcut(int keyCode, KeyEvent event) ;}
+
+    
+    interface onKeyUp {
+boolean onKeyUp(int keyCode, KeyEvent event) ;}
+
+    
+    interface onBackPressed {
+void onBackPressed() ;}
+
+    
+    interface onTouchEvent {
+boolean onTouchEvent(MotionEvent event) ;}
+
+    //========================================= Panel =========================================//
+
+    
+    interface onPanelClosed {
+void onPanelClosed(int featureId, Menu menu) ;}
+
+    
+    interface onCreatePanelMenu {
+boolean onCreatePanelMenu(int featureId, Menu menu) ;}
+
+    
+    interface onPreparePanel {
+boolean onPreparePanel(int featureId, View view, Menu menu) ;}
+
+    interface onCreatePanelView {
+View onCreatePanelView(int featureId) ;}
+
+    //========================================= Window =========================================//
+    
+    interface onDetachedFromWindow {
+void onDetachedFromWindow() ;}
+
+    
+    interface onAttachedToWindow {
+void onAttachedToWindow() ;}
+
+    
+    interface onUserLeaveHint {
+void onUserLeaveHint() ;}
+
+    
+    interface onUserInteraction {
+void onUserInteraction() ;}
+
+    //========================================= ContextMenu =========================================//
+    
+    interface onContextMenuClosed {
+void onContextMenuClosed(Menu menu) ;}
+
+    
+    interface onCreateContextMenu {
+void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) ;}
+
+    
+    interface onContextItemSelected {
+boolean onContextItemSelected(MenuItem item) ;}
+
+    
+    interface onMenuItemSelected {
+boolean onMenuItemSelected(int featureId, MenuItem item) ;}
+
+    //========================================= Memory =========================================//
+    
+    interface onLowMemory {
+void onLowMemory() ;}
+
+    
+    interface onTrimMemory {
+void onTrimMemory(int level) ;}
+
+    
+    interface onApplyThemeResource {
+void onApplyThemeResource(Resources.Theme theme, int resid, boolean first) ;}
+
+    
+    interface onMenuOpened {
+boolean onMenuOpened(int featureId, Menu menu) ;}
+
+    
+    interface onAttachFragment {
+void onAttachFragment(Fragment fragment) ;}
+
+    
+    interface onEnterAnimationComplete {
+void onEnterAnimationComplete() ;}
