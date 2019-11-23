@@ -107,6 +107,14 @@ public interface ActivitySubscribe {
             DATA.add(OnAttachFragmentV2.class);
             DATA.add(OnEnterAnimationComplete.class);
         }
+
+        public static void register(Class<? extends ActivitySubscribe> clazz) {
+            DATA.add(clazz);
+        }
+
+        public static boolean contains(Class<? extends ActivitySubscribe> clazz) {
+            return DATA.contains(clazz);
+        }
     }
 
     //========================================= Lifecycle =========================================//
@@ -308,9 +316,4 @@ public interface ActivitySubscribe {
     interface OnEnterAnimationComplete extends ActivitySubscribe {
         void onEnterAnimationComplete();
     }
-
-    /*
-     * 正则: (public|protected) (\S+ ([^\(]+)\([^\)]*\) *;)
-     *      interface $3 extends ActivitySubscribe {\n$2\n}
-     */
 }
