@@ -35,7 +35,7 @@ public class LshLog {
 
     static {
         LogConfig logConfig = LshConfig.get(LogConfig.class);
-        HandlerThread handlerThread = new HandlerThread("YxLoggerFileThread");
+        HandlerThread handlerThread = new HandlerThread("LshLogFileThread");
         handlerThread.start();
 
         String defaultTag = logConfig.defaultTag;
@@ -128,7 +128,7 @@ public class LshLog {
      * <p>
      * 用于打印需要进行追踪业务流程或记录的信息, 默认会输出到本地日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void i(@Nullable String message) {
         logger.i(message);
@@ -139,7 +139,7 @@ public class LshLog {
      * <p>
      * 用于打印需要进行追踪业务流程或记录的信息, 默认会输出到本地日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void i(@Nullable String tag, @Nullable String message) {
         logger.i(tag, message);
@@ -150,7 +150,7 @@ public class LshLog {
      * <p>
      * 用于打印需要进行追踪业务流程或记录的信息, 默认会输出到本地日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void i(@Nullable String message, @Nullable Throwable throwable) {
         logger.i(message, throwable);
@@ -161,7 +161,7 @@ public class LshLog {
      * <p>
      * 用于打印需要进行追踪业务流程或记录的信息, 默认会输出到本地日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void i(@Nullable String tag, @Nullable String message, @Nullable Throwable throwable) {
         logger.i(tag, message, throwable);
@@ -172,8 +172,8 @@ public class LshLog {
      * <p>
      * 用于打印警告的消息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void w(@Nullable String message) {
         logger.w(message);
@@ -184,8 +184,8 @@ public class LshLog {
      * <p>
      * 用于打印警告的消息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void w(@Nullable String tag, @Nullable String message) {
         logger.w(tag, message);
@@ -196,8 +196,8 @@ public class LshLog {
      * <p>
      * 用于打印警告的消息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void w(@Nullable String message, @Nullable Throwable throwable) {
         logger.w(message, throwable);
@@ -208,8 +208,8 @@ public class LshLog {
      * <p>
      * 用于打印警告的消息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void w(@Nullable String tag, @Nullable String message, @Nullable Throwable throwable) {
         logger.w(tag, message, throwable);
@@ -220,8 +220,8 @@ public class LshLog {
      * <p>
      * 用于打印异常和错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void e(@Nullable String message) {
         logger.e(message);
@@ -232,8 +232,8 @@ public class LshLog {
      * <p>
      * 用于打印异常和错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void e(@Nullable String tag, @Nullable String message) {
         logger.e(tag, message);
@@ -244,8 +244,8 @@ public class LshLog {
      * <p>
      * 用于打印异常和错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void e(@Nullable String message, @Nullable Throwable throwable) {
         logger.e(message, throwable);
@@ -256,8 +256,8 @@ public class LshLog {
      * <p>
      * 用于打印异常和错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void e(@Nullable String tag, @Nullable String message, @Nullable Throwable throwable) {
         logger.e(tag, message, throwable);
@@ -268,8 +268,8 @@ public class LshLog {
      * <p>
      * 用于打印可能导致应用或系统发生致命性 BUG 或错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void fatal(@Nullable String message) {
         logger.fatal(message);
@@ -280,8 +280,8 @@ public class LshLog {
      * <p>
      * 用于打印可能导致应用或系统发生致命性 BUG 或错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void fatal(@Nullable String tag, @Nullable String message) {
         logger.fatal(tag, message);
@@ -292,8 +292,8 @@ public class LshLog {
      * <p>
      * 用于打印可能导致应用或系统发生致命性 BUG 或错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void fatal(@Nullable String message, @Nullable Throwable throwable) {
         logger.fatal(message, throwable);
@@ -304,8 +304,8 @@ public class LshLog {
      * <p>
      * 用于打印可能导致应用或系统发生致命性 BUG 或错误的信息, 默认会输出到本地日志文件和错误日志文件
      * <p>
-     * 本地日志文件路径: sdcard/imprexion/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
-     * 错误日志文件路径: sdcard/imprexion/logger/<timestamp>/log_error/<timestamp>/<package_name>@<yyyyMMddHHmmss>.log
+     * 本地日志文件路径: sdcard/linsh/logger/<timestamp>/log/<package_name>@<yyyyMMddHHmmss>.log
+     * 错误日志文件路径: sdcard/linsh/logger/<timestamp>/log_error/<package_name>@<yyyyMMddHHmmss>.log
      */
     public static void fatal(@Nullable String tag, @Nullable String message, @Nullable Throwable throwable) {
         logger.fatal(tag, message, throwable);

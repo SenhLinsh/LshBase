@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.PersistableBundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -16,6 +14,9 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.HashSet;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * <pre>
@@ -104,7 +105,6 @@ public interface ActivitySubscribe {
             DATA.add(OnApplyThemeResource.class);
             DATA.add(OnMenuOpened.class);
             DATA.add(OnAttachFragment.class);
-            DATA.add(OnAttachFragmentV2.class);
             DATA.add(OnEnterAnimationComplete.class);
         }
 
@@ -307,10 +307,6 @@ public interface ActivitySubscribe {
 
     interface OnAttachFragment extends ActivitySubscribe {
         void onAttachFragment(Fragment fragment);
-    }
-
-    interface OnAttachFragmentV2 extends ActivitySubscribe {
-        void onAttachFragment(android.support.v4.app.Fragment fragment);
     }
 
     interface OnEnterAnimationComplete extends ActivitySubscribe {

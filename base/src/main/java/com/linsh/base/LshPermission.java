@@ -3,9 +3,13 @@ package com.linsh.base;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 
+import com.linsh.base.activity.ActivitySubscribe;
+import com.linsh.lshutils.utils.IdUtilsEx;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.PermissionUtils;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 /**
@@ -27,7 +31,7 @@ public class LshPermission {
      * @param permission 用户权限
      * @return
      */
-    public static boolean checkPermission(String permission) {
+    public static boolean checkPermission(final String permission) {
         return ContextCompat.checkSelfPermission(ContextUtils.get(), permission)
                 == PackageManager.PERMISSION_GRANTED;
     }
@@ -38,8 +42,31 @@ public class LshPermission {
      * @param activity   activity
      * @param permission 用户权限
      */
-    public static void requestPermission(Activity activity, String permission) {
-        PermissionUtils.requestPermission(activity, permission, null);
+    public static void requestPermission(final Activity activity, final String permission, final PermissionListener listener) {
+        final int code = IdUtilsEx.generateId();
+        if (listener != null) {
+            LshActivity.delegate(activity)
+                    .subscribe(new ActivitySubscribe.OnRequestPermissionsResult() {
+                        @Override
+                        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+                            if (requestCode == code && permissions[0].equals(permission)) {
+                                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                                    listener.onGranted(permission);
+                                } else if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+                                    listener.onDenied(permission, false);
+                                } else {
+                                    listener.onDenied(permission, true);
+                                }
+                                LshActivity.delegate(activity).unsubscribe(this);
+                            }
+                        }
+
+                        @Override
+                        public void attach(Activity activity) {
+                        }
+                    });
+        }
+        PermissionUtils.requestPermission(activity, permission, code);
     }
 
     /**
@@ -50,11 +77,18 @@ public class LshPermission {
      * @param permission
      * @return
      */
-    public static boolean checkAndRequestPermission(Activity activity, String permission) {
+    public static boolean checkAndRequestPermission(Activity activity, String permission, PermissionListener listener) {
         if (!checkPermission(permission)) {
-            requestPermission(activity, permission);
+            requestPermission(activity, permission, listener);
             return false;
         }
         return true;
+    }
+
+    public interface PermissionListener {
+
+        void onGranted(String permission);
+
+        void onDenied(String permission, boolean isNeverAsked);
     }
 }
