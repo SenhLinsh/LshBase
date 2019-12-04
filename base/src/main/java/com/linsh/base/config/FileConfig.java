@@ -1,7 +1,5 @@
 package com.linsh.base.config;
 
-import java.io.File;
-
 /**
  * <pre>
  *    author : Senh Linsh
@@ -12,30 +10,30 @@ import java.io.File;
  */
 public class FileConfig implements Config {
 
-    private final File appDir;
+    private final String appDirName;
 
-    private FileConfig(File appDir) {
-        this.appDir = appDir;
+    private FileConfig(String appDirName) {
+        this.appDirName = appDirName;
     }
 
-    public File appDir() {
-        return appDir;
+    public String appDirName() {
+        return appDirName;
     }
 
     public static class Builder {
 
-        private File appDir;
+        private String appDirName;
 
         public Builder() {
         }
 
-        public Builder appDir(File appDir) {
-            this.appDir = appDir;
+        public Builder appDirName(String appDirName) {
+            this.appDirName = appDirName;
             return this;
         }
 
         public FileConfig build() {
-            return new FileConfig(appDir);
+            return new FileConfig(appDirName);
         }
     }
 }

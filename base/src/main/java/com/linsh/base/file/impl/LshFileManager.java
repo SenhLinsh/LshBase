@@ -2,6 +2,7 @@ package com.linsh.base.file.impl;
 
 import android.app.Activity;
 import android.os.Build;
+import android.os.Environment;
 
 import com.linsh.base.LshActivity;
 import com.linsh.base.activity.ActivitySubscribe;
@@ -28,6 +29,7 @@ import androidx.annotation.NonNull;
 public class LshFileManager implements FileManager {
 
     private final FileConfig config;
+    private final static String APP_PARENT_FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/linsh";
 
     public LshFileManager(FileConfig config) {
         this.config = config;
@@ -53,7 +55,7 @@ public class LshFileManager implements FileManager {
     @Override
     public FileBuilder app(String filename) {
         return new FileBuilderImpl(FileBuilderImpl.TYPE_PATH,
-                config.appDir() + filename);
+                APP_PARENT_FILE_PATH + "/" + config.appDirName() + "/" + filename);
     }
 
     @Override
