@@ -1,8 +1,11 @@
-package com.linsh.base.base;
+package com.linsh.base.activity.impl;
+
+import android.os.Bundle;
 
 import com.linsh.base.activity.ActivityDelegate;
 import com.linsh.base.activity.IDelegateActivity;
-import com.linsh.base.activity.impl.ObservableActivity;
+
+import androidx.annotation.Nullable;
 
 /**
  * <pre>
@@ -12,10 +15,15 @@ import com.linsh.base.activity.impl.ObservableActivity;
  *    desc   :
  * </pre>
  */
-public class BaseActivity extends ObservableActivity implements IDelegateActivity {
-
+public class DelegateActivity extends ObservableActivity implements IDelegateActivity {
 
     private ActivityDelegate delegate;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        
+    }
 
     @Override
     public void delegateActivity(ActivityDelegate delegate) {
