@@ -1,6 +1,7 @@
 package com.linsh.base;
 
 import android.app.Activity;
+import android.os.Environment;
 
 import com.linsh.base.file.FileBuilder;
 import com.linsh.base.config.FileConfig;
@@ -21,10 +22,13 @@ import java.io.File;
 public class LshFile {
 
     private static FileManager manager;
+    private static final File APP_DIR_IN_TEXT;
 
     static {
         FileConfig config = LshConfig.get(FileConfig.class);
         manager = new LshFileManager(config);
+        APP_DIR_IN_TEXT = new File(Environment.getExternalStorageDirectory(),
+                "linsh/text/个人/开发/App/" + config.appDirName());
     }
 
     public static FileBuilder file(File file) {
@@ -41,6 +45,10 @@ public class LshFile {
 
     public static FileBuilder app(String filename) {
         return manager.app(filename);
+    }
+
+    public static FileBuilder appForText(String filename) {
+        return manager.file(new File(APP_DIR_IN_TEXT, filename));
     }
 
     public static FileBuilder data(String filename) {
