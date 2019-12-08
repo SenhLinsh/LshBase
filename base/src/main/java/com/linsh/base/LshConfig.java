@@ -58,8 +58,11 @@ import java.util.Map;
 public class LshConfig {
 
     private static final String config_dir_path = Environment.getExternalStorageDirectory() + "/linsh/config";
+    private static final String config_dir_path_from_text = Environment.getExternalStorageDirectory() + "/linsh/text/开发/linsh/config/";
     private static final String public_config_dir_path = Environment.getExternalStorageDirectory()
             + "/linsh/config/com.linsh.base/";
+    private static final String public_config_dir_path_from_text = Environment.getExternalStorageDirectory()
+            + "/linsh/text/开发/linsh/config/com.linsh.base/";
 
     private static final Map<Class<? extends Config>, Config> defaultConfigs = new HashMap<>();
 
@@ -73,27 +76,28 @@ public class LshConfig {
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      */
     public static <T extends Config> T get(Class<T> configClass) {
-        // 先取默认配置
+        // 1. 默认配置
         if (defaultConfigs.size() > 0) {
             Config config = defaultConfigs.get(configClass);
             if (config != null)
                 return (T) config;
         }
-        // 后读配置文件
+        // 2. 配置文件
         Gson gson = new Gson();
         Map<String, Object> configMap = null;
         String filename = configClass.getSimpleName();
-        // 先读 asset/config 的
+        // 2.1 asset/config
         String json = ResourceUtils.getTextFromAssets("config/" + filename);
-        if (json != null) {
-            try {
-                configMap = gson.fromJson(json, new TypeToken<Map<String, Object>>() {
-                }.getType());
-            } catch (Exception e) {
-                throw new IllegalArgumentException("assets 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
-            }
+        if (json == null) {
+            throw new IllegalArgumentException("获取配置 <" + filename + "> 时, 需求 assets/config 目录下预先保存默认配置");
         }
-        // 最后读 sdcard 的
+        try {
+            configMap = gson.fromJson(json, new TypeToken<Map<String, Object>>() {
+            }.getType());
+        } catch (Exception e) {
+            throw new IllegalArgumentException("assets 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
+        }
+        // 2.2 sdcard
         File file = getConfigFile(configClass);
         json = FileUtils.readAsString(file);
         if (json != null) {
@@ -106,6 +110,7 @@ public class LshConfig {
                 Log.e(BuildConfig.TAG, "sdcard 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
             }
         }
+
         // 序列化, 再反序列化成对象
         json = gson.toJson(configMap);
         T t = gson.fromJson(json, configClass);
@@ -123,7 +128,12 @@ public class LshConfig {
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      */
     public static File getConfigFile(Class<? extends Config> configClass) {
-        return new File(config_dir_path, ContextUtils.getPackageName() + '/' + configClass.getSimpleName());
+        String child = ContextUtils.getPackageName() + '/' + configClass.getSimpleName();
+        File file = new File(config_dir_path_from_text, child);
+        if (file.exists()) {
+            return file;
+        }
+        return new File(config_dir_path, child);
     }
 
     /**
@@ -154,7 +164,12 @@ public class LshConfig {
      * @param configClass 定义配置文件的类, 配置类需实现 {@link PublicConfig} 接口
      */
     public static File getPublicConfigFile(Class<? extends PublicConfig> configClass) {
-        return new File(public_config_dir_path, configClass.getSimpleName());
+        String child = ContextUtils.getPackageName() + '/' + configClass.getSimpleName();
+        File file = new File(public_config_dir_path_from_text, child);
+        if (file.exists()) {
+            return file;
+        }
+        return new File(public_config_dir_path, child);
     }
 
     /**
