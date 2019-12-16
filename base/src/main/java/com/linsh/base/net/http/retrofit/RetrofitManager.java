@@ -3,12 +3,15 @@ package com.linsh.base.net.http.retrofit;
 
 import android.os.Build;
 
-import com.linsh.base.net.http.GetBuilder;
+import androidx.annotation.NonNull;
+
 import com.linsh.base.config.HttpConfig;
+import com.linsh.base.net.http.GetBuilder;
 import com.linsh.base.net.http.HttpManager;
 import com.linsh.base.net.http.PostBuilder;
 import com.linsh.base.net.http.RequestBuilderFactory;
 import com.linsh.base.net.http.ServiceFactory;
+import com.linsh.base.net.http.retrofit.adapter.DefaultCallAdapterFactory;
 import com.linsh.base.net.http.retrofit.converter.StringConverterFactory;
 
 import java.io.IOException;
@@ -18,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import androidx.annotation.NonNull;
 import okhttp3.Call;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -62,6 +64,7 @@ public class RetrofitManager implements HttpManager {
         Retrofit.Builder builder = new Retrofit.Builder();
         return builder.baseUrl(config.baseUrl())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(DefaultCallAdapterFactory.create())
                 .addConverterFactory(StringConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .callFactory(new OkHttpClient.Builder()
