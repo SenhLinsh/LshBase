@@ -1,1 +1,5 @@
-{"printToLogcatLevel":2,"printToLogFileLevel":2,"printToErrorFileLevel":4}
+{
+    "printToLogcatLevel":6,
+    "printToLogFileLevel":3,
+    "printToErrorFileLevel":6
+}
