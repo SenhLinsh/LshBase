@@ -61,7 +61,7 @@ import androidx.appcompat.app.AppCompatActivity;
  *             无法及时收到)
  * </pre>
  */
-public abstract class ObservableActivity extends AppCompatActivity implements IObservableActivity {
+abstract class ObservableActivity extends AppCompatActivity implements IObservableActivity {
 
     private static final List<Class<? extends ActivitySubscribe>> EMPTY_SUBSCRIBE = new LinkedList<>();
 
@@ -305,7 +305,7 @@ public abstract class ObservableActivity extends AppCompatActivity implements IO
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 订阅通过 Intention 传递过来的 ActivitySubscribe 订阅者
-        List<Class<? extends ActivitySubscribe>> subscribers = LshActivity.delegate(this).intent().getSubscribers();
+        List<Class<? extends ActivitySubscribe>> subscribers = LshActivity.intent(getIntent()).getSubscribers();
         if (subscribers != null) {
             for (Class<? extends ActivitySubscribe> subscriber : subscribers) {
                 subscribe(subscriber);

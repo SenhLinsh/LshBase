@@ -9,6 +9,7 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.linsh.base.LshLog;
 import com.linsh.base.activity.ActivitySubscribe;
+import com.linsh.base.activity.Contract;
 import com.linsh.base.activity.IObservableActivity;
 import com.linsh.base.activity.IntentDelegate;
 import com.linsh.utilseverywhere.ContextUtils;
@@ -303,8 +304,8 @@ class IntentDelegateImpl implements IntentDelegate {
     @Override
     public List<Class<? extends ActivitySubscribe>> getSubscribers() {
         ArrayList<String> subscribers = intent.getStringArrayListExtra(INTENT_EXTRA_PREFIX + "activity_subscribes");
-        ArrayList<Class<? extends ActivitySubscribe>> res = new ArrayList<>();
         if (subscribers != null) {
+            ArrayList<Class<? extends ActivitySubscribe>> res = new ArrayList<>();
             for (String subscriber : subscribers) {
                 try {
                     res.add((Class<? extends ActivitySubscribe>) Class.forName(subscriber));
@@ -316,6 +317,20 @@ class IntentDelegateImpl implements IntentDelegate {
             }
             return res;
         }
+        return null;
+    }
+
+    @Override
+    public IntentDelegate presenter(Class<? extends Contract.Presenter> presenter) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "contract_presenter", presenter);
+        return this;
+    }
+
+    @Override
+    public Class<? extends Contract.Presenter> getPresenter() {
+        Serializable presenter = intent.getSerializableExtra(INTENT_EXTRA_PREFIX + "contract_presenter");
+        if (presenter != null)
+            return (Class<? extends Contract.Presenter>) presenter;
         return null;
     }
 
@@ -336,8 +351,8 @@ class IntentDelegateImpl implements IntentDelegate {
     }
 
     @Override
-    public void start(Activity activity) {
-        activity.startActivity(intent);
+    public void start(Context context) {
+        context.startActivity(intent);
     }
 
     @Override

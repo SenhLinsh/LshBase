@@ -1,6 +1,7 @@
 package com.linsh.base.activity;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcelable;
@@ -94,17 +95,21 @@ public interface IntentDelegate {
 
     IntentDelegate newTask();
 
-    IntentDelegate subscribe(Class<? extends ActivitySubscribe> subscriber);
-
-    List<Class<? extends ActivitySubscribe>> getSubscribers();
-
     Intent getIntent();
 
     void start();
 
-    void start(Activity activity);
+    void start(Context context);
 
     void startForResult(Activity activity, int requestCode);
 
     void startForResult(Activity activity, int requestCode, ActivitySubscribe.OnActivityResult subscriber);
+
+    IntentDelegate subscribe(Class<? extends ActivitySubscribe> subscriber);
+
+    List<Class<? extends ActivitySubscribe>> getSubscribers();
+
+    IntentDelegate presenter(Class<? extends Contract.Presenter> presenter);
+
+    Class<? extends Contract.Presenter> getPresenter();
 }

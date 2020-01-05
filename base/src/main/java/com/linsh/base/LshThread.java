@@ -57,4 +57,11 @@ public class LshThread {
     public static void newThread(Runnable task) {
         Holder.delegate.newThread(task);
     }
+
+    /**
+     * 用于 MVP 模式下 Presenter 的默认线程
+     */
+    public static void presenter(Runnable task) {
+        Holder.delegate.presenter(task);
+    }
 }

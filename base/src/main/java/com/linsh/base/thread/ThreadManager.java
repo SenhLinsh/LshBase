@@ -36,4 +36,9 @@ public interface ThreadManager {
      * 新线程
      */
     void newThread(Runnable task);
+
+    /**
+     * 用于 MVP 模式下 Presenter 的默认线程
+     */
+    void presenter(Runnable task);
 }

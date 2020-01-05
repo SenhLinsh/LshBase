@@ -1,6 +1,9 @@
 package com.linsh.base.thread.impl;
 
 
+import android.os.Handler;
+import android.os.HandlerThread;
+
 import com.linsh.base.thread.ThreadManager;
 import com.linsh.utilseverywhere.HandlerUtils;
 
@@ -26,6 +29,16 @@ public class RxThreadManager implements ThreadManager {
                 new LinkedBlockingQueue<Runnable>());
     }
 
+    static class PresenterThreadHolder {
+        static final Handler MVP_PRESENTER_THREAD = getHandlerThread();
+
+        private static Handler getHandlerThread() {
+            HandlerThread handlerThread = new HandlerThread("MvpPresenterThread");
+            handlerThread.start();
+            return new Handler(handlerThread.getLooper());
+        }
+    }
+
     @Override
     public void ui(Runnable task) {
         HandlerUtils.postRunnable(task);
@@ -49,5 +62,10 @@ public class RxThreadManager implements ThreadManager {
     @Override
     public void newThread(Runnable task) {
         Schedulers.newThread().scheduleDirect(task);
+    }
+
+    @Override
+    public void presenter(Runnable task) {
+        PresenterThreadHolder.MVP_PRESENTER_THREAD.post(task);
     }
 }
