@@ -5,9 +5,8 @@ import android.os.Bundle;
 import com.linsh.base.LshActivity;
 import com.linsh.base.LshLog;
 import com.linsh.base.activity.Contract;
-import com.linsh.base.activity.impl.DelegateActivity;
+import com.linsh.base.activity.base.BaseActivity;
 import com.linsh.utilseverywhere.ClassUtils;
-
 
 import androidx.annotation.Nullable;
 
@@ -19,7 +18,7 @@ import androidx.annotation.Nullable;
  *    desc   :
  * </pre>
  */
-public abstract class BaseMvpActivity<P extends Contract.Presenter> extends DelegateActivity implements Contract.View<P> {
+public abstract class BaseMvpActivity<P extends Contract.Presenter> extends BaseActivity implements Contract.View<P> {
 
     private static final String TAG = "BaseMvpActivity";
     private TransThreadMvpDelegate<P, Contract.View> mvpDelegate;

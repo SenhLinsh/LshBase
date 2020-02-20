@@ -91,7 +91,7 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
                     LshLog.i(TAG, "try to invoke view method, but the view is not attached, ignore it.");
                     return null;
                 }
-                LshLog.d(TAG, "delegatedView: delegatedView=" + originView.getClass().getSimpleName()
+                LshLog.v(TAG, "delegatedView: delegatedView=" + originView.getClass().getSimpleName()
                         + ", method=" + method.getName() + ", thread=" + Thread.currentThread().getName());
                 if (method.getReturnType() == void.class && !ThreadUtils.isMainThread()) {
                     LshThread.ui(new Runnable() {
@@ -107,10 +107,10 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
                     return null;
                 }
                 if (method.getReturnType() == void.class) {
-                    LshLog.i(TAG, "delegate delegatedView with a deprecated return type: " + method.getReturnType());
+                    LshLog.d(TAG, "delegate delegatedView with a deprecated return type: " + method.getReturnType());
                 }
                 if (!ThreadUtils.isMainThread()) {
-                    LshLog.i(TAG, "delegate delegatedView in a deprecated thread: " + Thread.currentThread().getName());
+                    LshLog.d(TAG, "delegate delegatedView in a deprecated thread: " + Thread.currentThread().getName());
                 }
                 return method.invoke(originView, args);
             }
@@ -147,7 +147,7 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
                     LshLog.i(TAG, "try to invoke presenter method, but the view is not attached, ignore it.");
                     return null;
                 }
-                LshLog.d(TAG, "delegatedPresenter: presenter=" + presenter.getClass().getSimpleName()
+                LshLog.v(TAG, "delegatedPresenter: presenter=" + presenter.getClass().getSimpleName()
                         + ", method=" + method.getName());
                 if (method.getReturnType() == void.class && ThreadUtils.isMainThread()) {
                     LshThread.presenter(new Runnable() {
@@ -163,10 +163,10 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
                     return null;
                 }
                 if (method.getReturnType() == void.class) {
-                    LshLog.i(TAG, "delegate view with a deprecated return type: " + method.getReturnType());
+                    LshLog.d(TAG, "delegate view with a deprecated return type: " + method.getReturnType());
                 }
                 if (ThreadUtils.isMainThread()) {
-                    LshLog.i(TAG, "delegate view in a deprecated thread: " + Thread.currentThread().getName());
+                    LshLog.d(TAG, "delegate view in a deprecated thread: " + Thread.currentThread().getName());
                 }
                 return method.invoke(presenter, args);
             }
