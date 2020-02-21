@@ -83,7 +83,7 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
             }
             viewClass = viewClass.getSuperclass();
         }
-        LshLog.d(TAG, "delegatedView: new proxy instance for Interfaces: " + Arrays.toString(interfaces));
+        LshLog.v(TAG, "delegatedView: new proxy instance for Interfaces: " + Arrays.toString(interfaces));
         return (T) Proxy.newProxyInstance(originView.getClass().getClassLoader(), interfaces, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
@@ -138,7 +138,7 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
             }
             presenterClass = presenterClass.getSuperclass();
         }
-        LshLog.d(TAG, "delegatedPresenter: new proxy instance for Interfaces: " + Arrays.toString(interfaces));
+        LshLog.v(TAG, "delegatedPresenter: new proxy instance for Interfaces: " + Arrays.toString(interfaces));
         return (T) Proxy.newProxyInstance(originPresenter.getClass().getClassLoader(), interfaces, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {

@@ -8,6 +8,7 @@ import com.linsh.base.config.FileConfig;
 import com.linsh.base.file.FileManager;
 import com.linsh.base.file.PermissionCallback;
 import com.linsh.base.file.impl.LshFileManager;
+import com.linsh.utilseverywhere.ContextUtils;
 
 import java.io.File;
 
@@ -28,7 +29,7 @@ public class LshFile {
         FileConfig config = LshConfig.get(FileConfig.class);
         manager = new LshFileManager(config);
         APP_DIR_IN_TEXT = new File(Environment.getExternalStorageDirectory(),
-                "linsh/text/个人/开发/App/" + config.appDirName());
+                "linsh/text/开发/linsh/data/" + ContextUtils.getPackageName());
     }
 
     public static FileBuilder file(File file) {
@@ -47,7 +48,7 @@ public class LshFile {
         return manager.app(filename);
     }
 
-    public static FileBuilder appForText(String filename) {
+    public static FileBuilder dataForText(String filename) {
         return manager.file(new File(APP_DIR_IN_TEXT, filename));
     }
 

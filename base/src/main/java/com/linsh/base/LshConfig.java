@@ -7,7 +7,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.linsh.base.config.Config;
 import com.linsh.base.config.PublicConfig;
+import com.linsh.utilseverywhere.AppUtils;
 import com.linsh.utilseverywhere.ContextUtils;
+import com.linsh.utilseverywhere.DeviceUtils;
 import com.linsh.utilseverywhere.FileUtils;
 import com.linsh.utilseverywhere.ObjectUtils;
 import com.linsh.utilseverywhere.ResourceUtils;
@@ -57,10 +59,10 @@ import java.util.Map;
  */
 public class LshConfig {
 
-    private static final String config_dir_path = Environment.getExternalStorageDirectory() + "/linsh/config";
+    //    private static final String config_dir_path = Environment.getExternalStorageDirectory() + "/linsh/config";
     private static final String config_dir_path_from_text = Environment.getExternalStorageDirectory() + "/linsh/text/开发/linsh/config/";
-    private static final String public_config_dir_path = Environment.getExternalStorageDirectory()
-            + "/linsh/config/com.linsh.base/";
+    //    private static final String public_config_dir_path = Environment.getExternalStorageDirectory()
+    //            + "/linsh/config/com.linsh.base/";
     private static final String public_config_dir_path_from_text = Environment.getExternalStorageDirectory()
             + "/linsh/text/开发/linsh/config/com.linsh.base/";
 
@@ -128,12 +130,26 @@ public class LshConfig {
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      */
     public static File getConfigFile(Class<? extends Config> configClass) {
-        String child = ContextUtils.getPackageName() + '/' + configClass.getSimpleName();
-        File file = new File(config_dir_path_from_text, child);
+        File dir = new File(config_dir_path_from_text, ContextUtils.getPackageName());
+        if (!dir.exists()) {
+            return null;
+        }
+        String name = configClass.getSimpleName();
+        String debugPostFix = AppUtils.isAppDebug() ? "@debug" : "";
+        String serial = "@" + DeviceUtils.getMobileModel().replaceAll(" ", "");
+        File file = new File(dir, name + debugPostFix + serial);
         if (file.exists()) {
             return file;
         }
-        return new File(config_dir_path, child);
+        file = new File(dir, name + debugPostFix);
+        if (file.exists()) {
+            return file;
+        }
+        file = new File(dir, name + serial);
+        if (file.exists()) {
+            return file;
+        }
+        return new File(dir, name);
     }
 
     /**
@@ -164,12 +180,26 @@ public class LshConfig {
      * @param configClass 定义配置文件的类, 配置类需实现 {@link PublicConfig} 接口
      */
     public static File getPublicConfigFile(Class<? extends PublicConfig> configClass) {
-        String child = ContextUtils.getPackageName() + '/' + configClass.getSimpleName();
-        File file = new File(public_config_dir_path_from_text, child);
+        File dir = new File(public_config_dir_path_from_text, ContextUtils.getPackageName());
+        if (!dir.exists()) {
+            return null;
+        }
+        String name = configClass.getSimpleName();
+        String debugPostFix = AppUtils.isAppDebug() ? "@debug" : "";
+        String serial = "@" + DeviceUtils.getMobileModel().replaceAll(" ", "");
+        File file = new File(dir, name + debugPostFix + serial);
         if (file.exists()) {
             return file;
         }
-        return new File(public_config_dir_path, child);
+        file = new File(dir, name + debugPostFix);
+        if (file.exists()) {
+            return file;
+        }
+        file = new File(dir, name + serial);
+        if (file.exists()) {
+            return file;
+        }
+        return new File(dir, name);
     }
 
     /**
