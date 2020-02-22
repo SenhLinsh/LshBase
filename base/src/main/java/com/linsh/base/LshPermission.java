@@ -73,11 +73,8 @@ public class LshPermission {
      * 检查并申请权限, 如果检查权限时发现没有获取到权限, 则尝试申请
      * <p>
      * 在这里申请权限使用了静默申请, 不会弹出提示窗口
-     *
-     * @param permission
-     * @return
      */
-    public static boolean checkAndRequestPermission(Activity activity, String permission, PermissionListener listener) {
+    public static boolean checkOrRequestPermission(Activity activity, String permission, PermissionListener listener) {
         if (!checkPermission(permission)) {
             requestPermission(activity, permission, listener);
             return false;
