@@ -22,7 +22,6 @@ import com.linsh.base.activity.IObservableActivity;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -63,22 +62,26 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 abstract class ObservableActivity extends AppCompatActivity implements IObservableActivity {
 
-    private static final List<Class<? extends ActivitySubscribe>> EMPTY_SUBSCRIBE = new LinkedList<>();
+    private static final String TAG = "ObservableActivity";
 
     /**
      * 该 Map 包含了所有已经被订阅了的订阅者.
-     * Map 中的 key 为指定回调对应的订阅事件, value 为订阅过该事件的所有订阅者
+     * <p>
+     * Map 中的 key 为订阅事件接口, value 为该事件的所有订阅者
      */
     private HashMap<Class, Set<ActivitySubscribe>> mSubscribers;
 
     /**
-     * 该 Map 包含没有订阅具体事件的订阅者, 一般只是为了被 Activity 所引用, 从而跟随 Activity 一起生存和销毁.
-     * 其中 key 为订阅该事件的类的字节码对象, value 为该类的实例的集合
+     * 对于传入 Class 字节码类型的订阅者, 将只保留一个实例, 其他地方需要使用, 会对其进行复用
+     * <p>
+     * Map 中的 key 为订阅者 Class, value 为 Class 类型传入后自动实例化的所有订阅者
      */
-    private HashMap<Class, ActivitySubscribe> mUnidentifiedSubscribers;
+    private HashMap<Class, ActivitySubscribe> mSingleInstanceSubscribers;
 
     /**
-     * 缓存已经使用了的订阅者, 下次可省略查找订阅事件的步骤.
+     * 静态缓存已经使用了的订阅者所匹配的事件, 下次再使用时可省略查找订阅事件的步骤.
+     * <p>
+     * Map 中的 key 为订阅者的 Class, value 该订阅者所有的订阅事件接口列表
      */
     private static HashMap<Class, List<Class<? extends ActivitySubscribe>>> sCachedSubscriberClasses = new HashMap<>();
 
@@ -92,31 +95,22 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
      */
     @Override
     public <T extends ActivitySubscribe> T subscribe(Class<T> classOfSubscriber) {
+        if (mSingleInstanceSubscribers == null)
+            mSingleInstanceSubscribers = new HashMap<>();
         // 检查如果已经订阅, 则返回该类的实例
-        List<Class<? extends ActivitySubscribe>> cache = sCachedSubscriberClasses.get(classOfSubscriber);
-        if (cache != null) {
-            if (cache.size() != 0 && mSubscribers != null) {
-                Class<? extends ActivitySubscribe> subscribe = cache.get(0);
-                Set<ActivitySubscribe> subscribers = mSubscribers.get(subscribe);
-                for (ActivitySubscribe subscriber : subscribers) {
-                    if (subscriber.getClass() == classOfSubscriber)
-                        return (T) subscriber;
-                }
-            } else {
-                if (mUnidentifiedSubscribers != null) {
-                    ActivitySubscribe subscriber = mUnidentifiedSubscribers.get(classOfSubscriber);
-                    if (subscriber != null) {
-                        return (T) subscriber;
-                    }
-                }
-            }
+        ActivitySubscribe instance = mSingleInstanceSubscribers.get(classOfSubscriber);
+        if (instance != null) {
+            // 该订阅者已经自动创建过实例, 直接使用缓存实例
+            return (T) instance;
         }
         // 没有订阅该类, 则创建实例, 对该实例进行订阅
         try {
             Constructor<T> constructor = classOfSubscriber.getDeclaredConstructor();
             constructor.setAccessible(true);
-            T callback = constructor.newInstance();
-            return subscribe(callback);
+            T subscribe = constructor.newInstance();
+            subscribe = subscribe(subscribe);
+            mSingleInstanceSubscribers.put(classOfSubscriber, subscribe);
+            return subscribe;
         } catch (Exception e) {
             throw new RuntimeException("实例化 " + classOfSubscriber.getName() + " 失败");
         }
@@ -133,33 +127,26 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
         if (mSubscribers == null)
             mSubscribers = new HashMap<>();
 
-        // 已经存在该类的订阅事件缓存
         List<Class<? extends ActivitySubscribe>> cache = sCachedSubscriberClasses.get(subscriber.getClass());
         if (cache != null) {
+            // 该类的订阅事件接口已经缓存过, 不需要再重新查找
             if (cache.size() > 0) {
-                for (Class<? extends ActivitySubscribe> callbackClass : cache) {
-                    Set<ActivitySubscribe> list = mSubscribers.get(callbackClass);
+                for (Class<? extends ActivitySubscribe> subscribeAPI : cache) {
+                    Set<ActivitySubscribe> list = mSubscribers.get(subscribeAPI);
                     if (list == null) {
                         list = new LinkedHashSet<>();
-                        mSubscribers.put(callbackClass, list);
+                        mSubscribers.put(subscribeAPI, list);
                     }
                     list.add(subscriber);
                 }
             } else {
-                if (mUnidentifiedSubscribers == null) {
-                    mUnidentifiedSubscribers = new HashMap<>();
-                }
-                ActivitySubscribe old = mUnidentifiedSubscribers.put(subscriber.getClass(), subscriber);
-                if (old != null && old != subscriber) {
-                    LshLog.e("subscriber 订阅冲突, 前面的订阅者被替换移除, " +
-                            "该操作将导致此前的订阅者无法被找到, 请检查是否订阅方式错误, 或重新设计订阅的实现");
-                }
+                LshLog.e(TAG, "find empty subscribeAPI cache list, please check");
             }
             // 如果重复对同一个实例进行订阅, 每次订阅都会调用一次 attach() 方法
             subscriber.attach(this);
             return subscriber;
         }
-        // 没有该类的订阅事件缓存, 获取并缓存
+        // 没有该订阅者的订阅事件接口缓存, 开始查找并缓存
         Class clazz = subscriber.getClass();
         cache = new LinkedList<>();
         while (clazz != null) {
@@ -180,18 +167,9 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
                 break;
             clazz = clazz.getSuperclass();
         }
-        if (cache.size() > 0) {
-            sCachedSubscriberClasses.put(subscriber.getClass(), cache);
-        } else {
-            sCachedSubscriberClasses.put(subscriber.getClass(), EMPTY_SUBSCRIBE);
-            if (mUnidentifiedSubscribers == null) {
-                mUnidentifiedSubscribers = new HashMap<>();
-            }
-            ActivitySubscribe old = mUnidentifiedSubscribers.put(subscriber.getClass(), subscriber);
-            if (old != null && old != subscriber) {
-                LshLog.e("subscriber 订阅冲突, 前面的订阅者被替换移除, " +
-                        "该操作将导致此前的订阅者无法被找到, 请检查是否订阅方式错误, 或重新设计订阅的实现");
-            }
+        sCachedSubscriberClasses.put(subscriber.getClass(), cache);
+        if (cache.size() == 0) {
+            LshLog.e(TAG, "make empty subscribeAPI cache list, please check");
         }
         subscriber.attach(this);
         return subscriber;
@@ -205,20 +183,7 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
      */
     @Override
     public boolean isSubscribed(Class<? extends ActivitySubscribe> classOfSubscriber) {
-        if (classOfSubscriber == null) return false;
-        List<Class<? extends ActivitySubscribe>> cache = sCachedSubscriberClasses.get(classOfSubscriber);
-        if (cache == null) return false;
-        if (cache.size() > 0) {
-            Set<ActivitySubscribe> subscribeSet = mSubscribers.get(cache.iterator().next());
-            if (subscribeSet == null) return false;
-            for (ActivitySubscribe subscriber : subscribeSet) {
-                if (subscriber.getClass() == classOfSubscriber)
-                    return true;
-            }
-        } else {
-            return mUnidentifiedSubscribers.containsKey(classOfSubscriber);
-        }
-        return false;
+        return mSingleInstanceSubscribers != null && mSingleInstanceSubscribers.containsKey(classOfSubscriber);
     }
 
     /**
@@ -230,15 +195,13 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
     @Override
     public boolean isSubscribed(ActivitySubscribe subscriber) {
         if (subscriber == null) return false;
+        // 找到一个该订阅者的订阅事件接口
         List<Class<? extends ActivitySubscribe>> cache = sCachedSubscriberClasses.get(subscriber.getClass());
-        if (cache == null) return false;
-        if (cache.size() > 0) {
-            Set<ActivitySubscribe> subscribeSet = mSubscribers.get(cache.iterator().next());
-            if (subscribeSet == null) return false;
-            return subscribeSet.contains(subscriber);
-        } else {
-            return subscriber == mUnidentifiedSubscribers.get(subscriber.getClass());
-        }
+        if (cache == null || cache.size() == 0) return false;
+        // 根据该接口去查找其中一处肯定存在该类的订阅事件接口的实现者缓存, 并判断是否存在该类
+        Set<ActivitySubscribe> subscribeSet = mSubscribers.get(cache.iterator().next());
+        if (subscribeSet == null) return false;
+        return subscribeSet.contains(subscriber);
     }
 
     /**
@@ -250,27 +213,7 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
      */
     @Override
     public boolean unsubscribe(Class<? extends ActivitySubscribe> classOfSubscriber) {
-        boolean res = false;
-        if (classOfSubscriber == null) return false;
-        List<Class<? extends ActivitySubscribe>> cache = sCachedSubscriberClasses.get(classOfSubscriber);
-        if (cache == null) return false;
-        if (cache.size() > 0) {
-            for (Class<? extends ActivitySubscribe> clazz : cache) {
-                Set<ActivitySubscribe> subscribers = mSubscribers.get(clazz);
-                if (subscribers != null) {
-                    Iterator<ActivitySubscribe> iterator = subscribers.iterator();
-                    while (iterator.hasNext()) {
-                        if (iterator.next().getClass() == classOfSubscriber) {
-                            iterator.remove();
-                            res = true;
-                        }
-                    }
-                }
-            }
-        } else {
-            return mUnidentifiedSubscribers.remove(classOfSubscriber) != null;
-        }
-        return res;
+        return mSingleInstanceSubscribers != null && mSingleInstanceSubscribers.remove(classOfSubscriber) != null;
     }
 
     /**
@@ -280,22 +223,16 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
      */
     @Override
     public boolean unsubscribe(ActivitySubscribe subscriber) {
-        boolean res = false;
         if (subscriber == null) return false;
         List<Class<? extends ActivitySubscribe>> cache = sCachedSubscriberClasses.get(subscriber.getClass());
-        if (cache == null) return false;
-        if (cache.size() > 0) {
-            for (Class<? extends ActivitySubscribe> clazz : cache) {
-                Set<ActivitySubscribe> subscribers = mSubscribers.get(clazz);
-                if (subscribers != null) {
-                    subscribers.remove(subscriber);
-                    res = true;
-                }
+        if (cache == null || cache.size() == 0) return false;
+        boolean res = false;
+        for (Class<? extends ActivitySubscribe> subscribeAPI : cache) {
+            Set<ActivitySubscribe> subscribers = mSubscribers.get(subscribeAPI);
+            if (subscribers != null) {
+                subscribers.remove(subscriber);
+                res = true;
             }
-        } else {
-            ActivitySubscribe old = mUnidentifiedSubscribers.get(subscriber.getClass());
-            if (old == subscriber)
-                return mUnidentifiedSubscribers.remove(subscriber.getClass()) == subscriber;
         }
         return res;
     }
