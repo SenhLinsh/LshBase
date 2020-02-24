@@ -1,6 +1,4 @@
-package com.linsh.base.activity.mvp;
-
-import com.linsh.base.activity.Contract;
+package com.linsh.base.mvp;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

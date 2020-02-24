@@ -1,8 +1,7 @@
-package com.linsh.base.activity.mvp;
+package com.linsh.base.mvp;
 
 import com.linsh.base.LshLog;
 import com.linsh.base.LshThread;
-import com.linsh.base.activity.Contract;
 import com.linsh.utilseverywhere.ThreadUtils;
 
 import java.lang.reflect.InvocationHandler;

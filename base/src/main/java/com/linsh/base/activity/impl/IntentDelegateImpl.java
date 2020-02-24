@@ -9,7 +9,7 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.linsh.base.LshLog;
 import com.linsh.base.activity.ActivitySubscribe;
-import com.linsh.base.activity.Contract;
+import com.linsh.base.mvp.Contract;
 import com.linsh.base.activity.IObservableActivity;
 import com.linsh.base.activity.IntentDelegate;
 import com.linsh.utilseverywhere.ContextUtils;

@@ -1,4 +1,6 @@
-package com.linsh.base.activity;
+package com.linsh.base.mvp;
+
+import android.content.Context;
 
 /**
  * <pre>
@@ -18,5 +20,7 @@ public interface Contract {
 
     interface View<P extends Presenter> {
         P getPresenter();
+
+        Context getContext();
     }
 }

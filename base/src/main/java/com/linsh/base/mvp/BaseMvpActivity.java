@@ -1,10 +1,10 @@
-package com.linsh.base.activity.mvp;
+package com.linsh.base.mvp;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import com.linsh.base.LshActivity;
 import com.linsh.base.LshLog;
-import com.linsh.base.activity.Contract;
 import com.linsh.base.activity.base.BaseActivity;
 import com.linsh.utilseverywhere.ClassUtils;
 
@@ -71,5 +71,10 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
     @Override
     public P getPresenter() {
         return mvpDelegate.getPresenter();
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
     }
 }
