@@ -2,12 +2,15 @@ package com.linsh.base.mvp;
 
 import com.linsh.base.LshLog;
 import com.linsh.base.LshThread;
+import com.linsh.utilseverywhere.ListUtils;
 import com.linsh.utilseverywhere.ThreadUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <pre>
@@ -68,22 +71,20 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
      * 注意: 如果方法存在返回值, 将不会自动切换线程, 而是继续在当前的线程进行调用.
      */
     private <T extends Contract.View> T delegateView() {
-        Class[] interfaces = new Class[1];
+        Set<Class> interfaces = new HashSet<>();
         Class<?> viewClass = originView.getClass();
         out:
         while (viewClass != null) {
             Class<?>[] curInterfaces = viewClass.getInterfaces();
             for (Class<?> anInterface : curInterfaces) {
                 if (Contract.View.class.isAssignableFrom(anInterface)) {
-                    interfaces[0] = anInterface;
-                    // interface 取第一个就好
-                    break out;
+                    interfaces.add(anInterface);
                 }
             }
             viewClass = viewClass.getSuperclass();
         }
-        LshLog.v(TAG, "delegatedView: new proxy instance for Interfaces: " + Arrays.toString(interfaces));
-        return (T) Proxy.newProxyInstance(originView.getClass().getClassLoader(), interfaces, new InvocationHandler() {
+        LshLog.v(TAG, "delegatedView: new proxy instance for Interfaces: " + ListUtils.toString(interfaces));
+        return (T) Proxy.newProxyInstance(originView.getClass().getClassLoader(), interfaces.toArray(new Class[interfaces.size()]), new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, final Method method, final Object[] args) throws Throwable {
                 if (!isViewAttached) {

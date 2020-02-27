@@ -8,6 +8,10 @@ import com.linsh.base.LshLog;
 import com.linsh.base.activity.base.BaseActivity;
 import com.linsh.utilseverywhere.ClassUtils;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import androidx.annotation.Nullable;
 
 /**
@@ -18,16 +22,18 @@ import androidx.annotation.Nullable;
  *    desc   :
  * </pre>
  */
-public abstract class BaseMvpActivity<P extends Contract.Presenter> extends BaseActivity implements Contract.View<P> {
+public abstract class BaseMvpActivity<P extends Contract.Presenter> extends BaseActivity implements Contract.View {
 
     private static final String TAG = "BaseMvpActivity";
     private TransThreadMvpDelegate<P, Contract.View> mvpDelegate;
+    private HashMap<Class, TransThreadMvpDelegate> minorMvpDelegates;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mvpDelegate = new TransThreadMvpDelegate<>(initContractPresenter(), initContractView());
         mvpDelegate.attachView();
+        initMinorMvpDelegates();
     }
 
     protected P initContractPresenter() {
@@ -58,6 +64,26 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
         throw new RuntimeException("请通过 Intent 或注解设置 Presenter");
     }
 
+    private void initMinorMvpDelegates() {
+        // 通过注解设置 MinorPresenter
+        MinorPresenter annotation = getClass().getAnnotation(MinorPresenter.class);
+        if (annotation != null) {
+            try {
+                minorMvpDelegates = new HashMap<>();
+                Class<? extends Contract.Presenter>[] presenters = annotation.value();
+                for (int i = 0; i < presenters.length; i += 2) {
+                    Contract.Presenter presenter = (Contract.Presenter) ClassUtils.newInstance(presenters[i + 1], true);
+                    TransThreadMvpDelegate delegate = new TransThreadMvpDelegate<>(presenter, this);
+                    minorMvpDelegates.put(presenters[i], delegate);
+                    delegate.attachView();
+                }
+                LshLog.d(TAG, "initialize minor presenters from annotation: " + Arrays.toString(annotation.value()));
+            } catch (Exception e) {
+                throw new RuntimeException("initialize minor presenters from annotation failed: " + Arrays.toString(annotation.value()), e);
+            }
+        }
+    }
+
     protected Contract.View initContractView() {
         return this;
     }
@@ -66,11 +92,22 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
     protected void onDestroy() {
         super.onDestroy();
         mvpDelegate.detachView();
+        if (minorMvpDelegates != null) {
+            for (Map.Entry<Class, TransThreadMvpDelegate> entry : minorMvpDelegates.entrySet()) {
+                entry.getValue().detachView();
+            }
+        }
     }
 
-    @Override
-    public P getPresenter() {
+    protected P getPresenter() {
         return mvpDelegate.getPresenter();
+    }
+
+    protected <T extends Contract.Presenter> T getMinorPresenter(Class<T> clazzOfPresenter) {
+        if (minorMvpDelegates != null) {
+            return (T) minorMvpDelegates.get(clazzOfPresenter).getPresenter();
+        }
+        return null;
     }
 
     @Override

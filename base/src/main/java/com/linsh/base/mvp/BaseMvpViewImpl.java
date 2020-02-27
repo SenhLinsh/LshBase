@@ -13,7 +13,7 @@ import com.linsh.utilseverywhere.ClassUtils;
  *    desc   :
  * </pre>
  */
-public abstract class BaseMvpViewImpl<P extends Contract.Presenter> implements Contract.View<P> {
+public abstract class BaseMvpViewImpl<P extends Contract.Presenter> implements Contract.View {
 
     private static final String TAG = "BaseMvpViewImpl";
     private TransThreadMvpDelegate<P, Contract.View> mvpDelegate;
@@ -50,8 +50,7 @@ public abstract class BaseMvpViewImpl<P extends Contract.Presenter> implements C
         return this;
     }
 
-    @Override
-    public P getPresenter() {
+    protected P getPresenter() {
         return mvpDelegate.getPresenter();
     }
 

@@ -18,9 +18,7 @@ public interface Contract {
         void detachView();
     }
 
-    interface View<P extends Presenter> {
-        P getPresenter();
-
+    interface View {
         Context getContext();
     }
 }
