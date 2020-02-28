@@ -107,10 +107,10 @@ class TransThreadMvpDelegate<P extends Contract.Presenter, V extends Contract.Vi
                     return null;
                 }
                 if (method.getReturnType() == void.class) {
-                    LshLog.d(TAG, "delegate delegatedView with a deprecated return type: " + method.getReturnType());
+                    LshLog.d(TAG, "delegate delegatedView with a deprecated return type: " + method.getReturnType() + ", method: " + method.getName());
                 }
                 if (!ThreadUtils.isMainThread()) {
-                    LshLog.d(TAG, "delegate delegatedView in a deprecated thread: " + Thread.currentThread().getName());
+                    LshLog.d(TAG, "delegate delegatedView in a deprecated thread: " + Thread.currentThread().getName() + ", method: " + method.getName());
                 }
                 return method.invoke(originView, args);
             }

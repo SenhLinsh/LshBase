@@ -103,11 +103,15 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
         return mvpDelegate.getPresenter();
     }
 
-    protected <T extends Contract.Presenter> T getMinorPresenter(Class<T> clazzOfPresenter) {
-        if (minorMvpDelegates != null) {
-            return (T) minorMvpDelegates.get(clazzOfPresenter).getPresenter();
+    protected <T extends Contract.Presenter> T getMinorPresenter(Class<T> classOfPresenter) {
+        if (minorMvpDelegates == null) {
+            throw new RuntimeException("请使用 @MinorPresenter 注解初始化 MinorPresenter, clazzOfPresenter: " + classOfPresenter);
         }
-        return null;
+        TransThreadMvpDelegate mvpDelegate = minorMvpDelegates.get(classOfPresenter);
+        if (mvpDelegate == null) {
+            throw new RuntimeException("无法找到该 presenter 的实例, 请确认是否已正确初始化. clazzOfPresenter: " + classOfPresenter);
+        }
+        return (T) mvpDelegate.getPresenter();
     }
 
     @Override

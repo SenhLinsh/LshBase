@@ -5,6 +5,9 @@ import android.content.Context;
 import com.linsh.base.LshLog;
 import com.linsh.utilseverywhere.ClassUtils;
 
+import java.util.Arrays;
+import java.util.HashMap;
+
 /**
  * <pre>
  *    author : Senh Linsh
@@ -17,12 +20,14 @@ public abstract class BaseMvpViewImpl<P extends Contract.Presenter> implements C
 
     private static final String TAG = "BaseMvpViewImpl";
     private TransThreadMvpDelegate<P, Contract.View> mvpDelegate;
+    private HashMap<Class, TransThreadMvpDelegate> minorMvpDelegates;
     private Context context;
 
     protected void attachView(Context context) {
         this.context = context;
         mvpDelegate = new TransThreadMvpDelegate<>(initContractPresenter(), initContractView());
         mvpDelegate.attachView();
+        initMinorMvpDelegates();
     }
 
     protected void detachView() {
@@ -50,8 +55,35 @@ public abstract class BaseMvpViewImpl<P extends Contract.Presenter> implements C
         return this;
     }
 
+    private void initMinorMvpDelegates() {
+        // 通过注解设置 MinorPresenter
+        MinorPresenter annotation = getClass().getAnnotation(MinorPresenter.class);
+        if (annotation != null) {
+            try {
+                minorMvpDelegates = new HashMap<>();
+                Class<? extends Contract.Presenter>[] presenters = annotation.value();
+                for (int i = 0; i < presenters.length; i += 2) {
+                    Contract.Presenter presenter = (Contract.Presenter) ClassUtils.newInstance(presenters[i + 1], true);
+                    TransThreadMvpDelegate delegate = new TransThreadMvpDelegate<>(presenter, this);
+                    minorMvpDelegates.put(presenters[i], delegate);
+                    delegate.attachView();
+                }
+                LshLog.d(TAG, "initialize minor presenters from annotation: " + Arrays.toString(annotation.value()));
+            } catch (Exception e) {
+                throw new RuntimeException("initialize minor presenters from annotation failed: " + Arrays.toString(annotation.value()), e);
+            }
+        }
+    }
+
     protected P getPresenter() {
         return mvpDelegate.getPresenter();
+    }
+
+    protected <T extends Contract.Presenter> T getMinorPresenter(Class<T> clazzOfPresenter) {
+        if (minorMvpDelegates != null) {
+            return (T) minorMvpDelegates.get(clazzOfPresenter).getPresenter();
+        }
+        return null;
     }
 
     @Override
