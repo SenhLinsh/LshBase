@@ -27,55 +27,73 @@ public interface IntentDelegate {
 
     IntentDelegate targetInPath(String path);
 
-    IntentDelegate putExtra(String... values);
+    IntentDelegate putExtra(String value);
+
+    IntentDelegate putExtras(String... values);
 
     String getStringExtra();
 
     String getStringExtra(int index);
 
-    IntentDelegate putExtra(int... values);
+    IntentDelegate putExtra(int value);
+
+    IntentDelegate putExtras(int... values);
 
     int getIntExtra();
 
     int getIntExtra(int index);
 
-    IntentDelegate putExtra(long... values);
+    IntentDelegate putExtra(long value);
+
+    IntentDelegate putExtras(long... values);
 
     long getLongExtra();
 
     long getLongExtra(int index);
 
-    IntentDelegate putExtra(float... values);
+    IntentDelegate putExtra(float value);
+
+    IntentDelegate putExtras(float... values);
 
     float getFloatExtra();
 
     float getFloatExtra(int index);
 
-    IntentDelegate putExtra(double... values);
+    IntentDelegate putExtra(double value);
+
+    IntentDelegate putExtras(double... values);
 
     double getDoubleExtra();
 
     double getDoubleExtra(int index);
 
-    IntentDelegate putExtra(boolean... values);
+    IntentDelegate putExtra(boolean value);
+
+    IntentDelegate putExtras(boolean... values);
 
     boolean getBooleanExtra();
 
     boolean getBooleanExtra(int index);
 
-    IntentDelegate putExtra(Serializable... values);
+    IntentDelegate putExtra(Serializable value);
+
+    IntentDelegate putExtras(Serializable... values);
 
     Serializable getSerializableExtra();
 
     Serializable getSerializableExtra(int index);
 
-    IntentDelegate putExtra(Parcelable... values);
+    IntentDelegate putExtra(Parcelable value);
+
+    IntentDelegate putExtras(Parcelable... values);
 
     Parcelable getParcelableExtra();
 
     Parcelable getParcelableExtra(int index);
 
-    IntentDelegate putJsonExtra(Object... values);
+    IntentDelegate putJsonExtra(Object value);
+
+    IntentDelegate putJsonExtras(Object... values);
 
     <T> T getJsonExtra(Class<T> classOfT);
 

@@ -28,10 +28,11 @@ import java.util.List;
  */
 class IntentDelegateImpl implements IntentDelegate {
 
-    private static final String INTENT_EXTRA_PREFIX = "intent_extra_prefix_";
+    private static final String INTENT_EXTRA_PREFIX = "extra_";
     private Context context;
     private Intent intent;
     private ArrayList<String> subscribers;
+    private int[] indexes = new int[8];
 
     IntentDelegateImpl() {
         intent = new Intent();
@@ -68,9 +69,15 @@ class IntentDelegateImpl implements IntentDelegate {
     }
 
     @Override
-    public IntentDelegate putExtra(String... values) {
+    public IntentDelegate putExtra(String value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "String@" + indexes[0]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(String... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "String" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "String@" + indexes[0]++, values[i]);
         }
         return this;
     }
@@ -82,13 +89,19 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public String getStringExtra(int index) {
-        return intent.getStringExtra(INTENT_EXTRA_PREFIX + "String" + index);
+        return intent.getStringExtra(INTENT_EXTRA_PREFIX + "String@" + index);
     }
 
     @Override
-    public IntentDelegate putExtra(int... values) {
+    public IntentDelegate putExtra(int value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "int@" + indexes[1]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(int... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "int" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "int@" + indexes[1]++, values[i]);
         }
         return this;
     }
@@ -100,13 +113,19 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public int getIntExtra(int index) {
-        return intent.getIntExtra(INTENT_EXTRA_PREFIX + "int" + index, 0);
+        return intent.getIntExtra(INTENT_EXTRA_PREFIX + "int@" + index, 0);
     }
 
     @Override
-    public IntentDelegate putExtra(long... values) {
+    public IntentDelegate putExtra(long value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "long@" + indexes[2]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(long... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "long" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "long@" + indexes[2]++, values[i]);
         }
         return this;
     }
@@ -118,13 +137,19 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public long getLongExtra(int index) {
-        return intent.getLongExtra(INTENT_EXTRA_PREFIX + "long" + index, 0);
+        return intent.getLongExtra(INTENT_EXTRA_PREFIX + "long@" + index, 0);
     }
 
     @Override
-    public IntentDelegate putExtra(float... values) {
+    public IntentDelegate putExtra(float value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "float@" + indexes[3]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(float... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "float" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "float@" + indexes[3]++, values[i]);
         }
         return this;
     }
@@ -136,13 +161,19 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public float getFloatExtra(int index) {
-        return intent.getFloatExtra(INTENT_EXTRA_PREFIX + "float" + index, 0);
+        return intent.getFloatExtra(INTENT_EXTRA_PREFIX + "float@" + index, 0);
     }
 
     @Override
-    public IntentDelegate putExtra(double... values) {
+    public IntentDelegate putExtra(double value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "double@" + indexes[4]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(double... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "double" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "double@" + indexes[4]++, values[i]);
         }
         return this;
     }
@@ -154,13 +185,19 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public double getDoubleExtra(int index) {
-        return intent.getDoubleExtra(INTENT_EXTRA_PREFIX + "double" + index, 0);
+        return intent.getDoubleExtra(INTENT_EXTRA_PREFIX + "double@" + index, 0);
     }
 
     @Override
-    public IntentDelegate putExtra(boolean... values) {
+    public IntentDelegate putExtra(boolean value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "boolean@" + indexes[5]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(boolean... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "boolean" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "boolean@" + indexes[5]++, values[i]);
         }
         return this;
     }
@@ -172,13 +209,19 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public boolean getBooleanExtra(int index) {
-        return intent.getBooleanExtra(INTENT_EXTRA_PREFIX + "boolean" + index, false);
+        return intent.getBooleanExtra(INTENT_EXTRA_PREFIX + "boolean@" + index, false);
     }
 
     @Override
-    public IntentDelegate putExtra(Serializable... values) {
+    public IntentDelegate putExtra(Serializable value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "Serializable@" + indexes[6]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(Serializable... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "Serializable" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "Serializable@" + indexes[6]++, values[i]);
         }
         return this;
     }
@@ -190,13 +233,19 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public Serializable getSerializableExtra(int index) {
-        return intent.getSerializableExtra(INTENT_EXTRA_PREFIX + "Serializable" + index);
+        return intent.getSerializableExtra(INTENT_EXTRA_PREFIX + "Serializable@" + index);
     }
 
     @Override
-    public IntentDelegate putExtra(Parcelable... values) {
+    public IntentDelegate putExtra(Parcelable value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + "Parcelable@" + indexes[7]++, value);
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putExtras(Parcelable... values) {
         for (int i = 0; i < values.length; i++) {
-            intent.putExtra(INTENT_EXTRA_PREFIX + "Parcelable" + i, values[i]);
+            intent.putExtra(INTENT_EXTRA_PREFIX + "Parcelable@" + indexes[7]++, values[i]);
         }
         return this;
     }
@@ -208,11 +257,17 @@ class IntentDelegateImpl implements IntentDelegate {
 
     @Override
     public Parcelable getParcelableExtra(int index) {
-        return intent.getParcelableExtra(INTENT_EXTRA_PREFIX + "Parcelable" + index);
+        return intent.getParcelableExtra(INTENT_EXTRA_PREFIX + "Parcelable@" + index);
     }
 
     @Override
-    public IntentDelegate putJsonExtra(Object... values) {
+    public IntentDelegate putJsonExtra(Object value) {
+        intent.putExtra(INTENT_EXTRA_PREFIX + value.getClass().getName(), new Gson().toJson(value));
+        return this;
+    }
+
+    @Override
+    public IntentDelegate putJsonExtras(Object... values) {
         for (Object value : values) {
             intent.putExtra(INTENT_EXTRA_PREFIX + value.getClass().getName(), new Gson().toJson(value));
         }
