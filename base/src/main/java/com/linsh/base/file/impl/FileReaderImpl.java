@@ -101,7 +101,7 @@ class FileReaderImpl implements FileReader {
         return new TaskImpl<>(new Callable<Bitmap>() {
             @Override
             public Bitmap call() {
-                return BitmapUtils.getBitmap(file);
+                return BitmapUtils.from(file);
             }
         });
     }

@@ -89,7 +89,7 @@ class RetrofitCall implements RequestCall {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (callback == null) return;
-                Type type = ClassUtils.getGenericType(callback.getClass());
+                Type type = ClassUtils.getGenericType(callback.getClass(), AdapterCallback.class);
                 if (type == null)
                     throw new IllegalArgumentException("获取转换类型失败");
                 Converter<ResponseBody, T> converter = manager.nextResponseBodyConverter(type);
