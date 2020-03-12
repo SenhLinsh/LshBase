@@ -4,8 +4,12 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.linsh.base.config.Config;
+import com.linsh.base.config.FileConfig;
+import com.linsh.base.config.HttpConfig;
+import com.linsh.base.config.LogConfig;
 import com.linsh.base.config.PublicConfig;
 import com.linsh.utilseverywhere.AppUtils;
 import com.linsh.utilseverywhere.ContextUtils;
@@ -68,6 +72,15 @@ public class LshConfig {
 
     private static final Map<Class<? extends Config>, Config> defaultConfigs = new HashMap<>();
 
+    static {
+        setDefaultConfig(FileConfig.class, new FileConfig.Builder()
+                .appDirName(ContextUtils.getPackageName())
+                .build());
+        setDefaultConfig(HttpConfig.class, new HttpConfig.Builder()
+                .baseUrl("https://github.com/")
+                .build());
+        setDefaultConfig(LogConfig.class, new LogConfig());
+    }
 
     private LshConfig() {
     }
@@ -78,50 +91,34 @@ public class LshConfig {
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      */
     public static <T extends Config> T get(Class<T> configClass) {
-        // 1. 默认配置
-        if (defaultConfigs.size() > 0) {
-            Config config = defaultConfigs.get(configClass);
-            if (config != null)
-                return (T) config;
-        }
-        // 2. 配置文件
-        Gson gson = new Gson();
-        Map<String, Object> configMap = null;
         String filename = configClass.getSimpleName();
-        // 2.1 asset/config
-        String json = ResourceUtils.getTextFromAssets("config/" + filename);
-        if (json == null) {
-            throw new IllegalArgumentException("获取配置 <" + filename + "> 时, 需求 assets/config 目录下预先保存默认配置");
-        }
-        try {
-            configMap = gson.fromJson(json, new TypeToken<Map<String, Object>>() {
-            }.getType());
-        } catch (Exception e) {
-            throw new IllegalArgumentException("assets 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
-        }
-        // 2.2 sdcard
-        File file = getConfigFile(configClass);
-        json = FileUtils.readAsString(file);
+        Gson gson = new Gson();
+
+        JsonObject jsonObject = null;
+        // 1. 读取 sdcard 配置
+        File configFile = getConfigFile(configClass);
+        String json = FileUtils.readAsString(configFile);
         if (json != null) {
             try {
-                Map<String, Object> map = gson.fromJson(json, new TypeToken<Map<String, Object>>() {
-                }.getType());
-                if (configMap == null) configMap = map;
-                else configMap.putAll(map);
+                jsonObject = gson.fromJson(json, JsonObject.class);
             } catch (Exception e) {
                 Log.e(BuildConfig.TAG, "sdcard 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
             }
         }
-
-        // 序列化, 再反序列化成对象
-        json = gson.toJson(configMap);
-        T t = gson.fromJson(json, configClass);
-        ObjectUtils.checkNotNull(t, filename + " 读取失败或解析失败, 请根据 LshConfig 相关规范进行配置");
-        // 如果 sdcard 文件不存在, 则将设置结果写入到 sdcard
-        if (!file.exists()) {
-            FileUtils.writeString(file, json);
+        // 2. 读取 DefaultConfig
+        Config config = defaultConfigs.get(configClass);
+        if (config == null)
+            throw new IllegalArgumentException("获取配置 <" + filename + "> 前, 请使用 setDefaultConfig() 进行默认设置");
+        if (jsonObject == null) {
+            return (T) config;
         }
-        return t;
+        // 将 sdcard 的配置覆盖到 DefaultConfig 中
+        JsonObject jsonConfig = gson.toJsonTree(config).getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
+            jsonConfig.add(entry.getKey(), entry.getValue());
+        }
+        // 反序列化成对象
+        return gson.fromJson(jsonConfig, configClass);
     }
 
     /**
@@ -203,7 +200,7 @@ public class LshConfig {
     }
 
     /**
-     * 设置默认配置, 一旦默认配置设置之后, 将不再从配置文件中查找, 每次直接使用默认配置
+     * 设置默认配置, 如果该配置无法在 sdcard 中获取到, 将作为保底策略进行获取, 类似在 assets 配置的 config
      *
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      * @param config      默认配置对象

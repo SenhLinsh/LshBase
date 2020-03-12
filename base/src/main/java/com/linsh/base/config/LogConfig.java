@@ -10,8 +10,8 @@ package com.linsh.base.config;
  */
 public class LogConfig implements Config {
     public String defaultTag = null;
-    public int printToLogcatLevel = 0;
-    public int printToLogFileLevel = 2;
-    public int printToErrorFileLevel = 3;
+    public int printToLogcatLevel = 6;
+    public int printToLogFileLevel = 3;
+    public int printToErrorFileLevel = 6;
     public long maxFileSize = 500 * 1024L;
 }
