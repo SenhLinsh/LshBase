@@ -11,6 +11,7 @@ import com.linsh.base.config.FileConfig;
 import com.linsh.base.config.HttpConfig;
 import com.linsh.base.config.LogConfig;
 import com.linsh.base.config.PublicConfig;
+import com.linsh.lshutils.utils.DebugUtilsEx;
 import com.linsh.utilseverywhere.AppUtils;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.DeviceUtils;
@@ -79,7 +80,11 @@ public class LshConfig {
         setDefaultConfig(HttpConfig.class, new HttpConfig.Builder()
                 .baseUrl("https://github.com/")
                 .build());
-        setDefaultConfig(LogConfig.class, new LogConfig());
+        LogConfig config = new LogConfig();
+        if (DebugUtilsEx.isDebuggable()) {
+            config.printToLogcatLevel = 0;
+        }
+        setDefaultConfig(LogConfig.class, config);
     }
 
     private LshConfig() {

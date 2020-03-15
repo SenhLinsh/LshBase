@@ -35,7 +35,7 @@ public class LshHttp {
      */
     public static HttpManager getDefaultInstance() {
         if (instance == null) {
-            throw new IllegalArgumentException("请先通过 setDefaultConfig 设置默认值");
+            instance = new RetrofitManager(LshConfig.get(HttpConfig.class));
         }
         return instance;
     }
