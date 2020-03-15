@@ -19,13 +19,13 @@ import java.util.HashMap;
 public abstract class BaseMvpViewImpl<P extends Contract.Presenter> implements Contract.View {
 
     private static final String TAG = "BaseMvpViewImpl";
-    private TransThreadMvpDelegate<P, Contract.View> mvpDelegate;
-    private HashMap<Class, TransThreadMvpDelegate> minorMvpDelegates;
+    private MvpDelegate<P, Contract.View> mvpDelegate;
+    private HashMap<Class, MvpDelegate> minorMvpDelegates;
     private Context context;
 
     protected void attachView(Context context) {
         this.context = context;
-        mvpDelegate = new TransThreadMvpDelegate<>(initContractPresenter(), initContractView());
+        mvpDelegate = new MvpDelegate<>(initContractPresenter(), initContractView());
         mvpDelegate.attachView();
         initMinorMvpDelegates();
     }
@@ -64,7 +64,7 @@ public abstract class BaseMvpViewImpl<P extends Contract.Presenter> implements C
                 Class<? extends Contract.Presenter>[] presenters = annotation.value();
                 for (int i = 0; i < presenters.length; i += 2) {
                     Contract.Presenter presenter = (Contract.Presenter) ClassUtils.newInstance(presenters[i + 1], true);
-                    TransThreadMvpDelegate delegate = new TransThreadMvpDelegate<>(presenter, this);
+                    MvpDelegate delegate = new MvpDelegate<>(presenter, this);
                     minorMvpDelegates.put(presenters[i], delegate);
                     delegate.attachView();
                 }

@@ -25,13 +25,13 @@ import androidx.annotation.Nullable;
 public abstract class BaseMvpActivity<P extends Contract.Presenter> extends BaseActivity implements Contract.View {
 
     private static final String TAG = "BaseMvpActivity";
-    private TransThreadMvpDelegate<P, Contract.View> mvpDelegate;
-    private HashMap<Class, TransThreadMvpDelegate> minorMvpDelegates;
+    private MvpDelegate<P, Contract.View> mvpDelegate;
+    private HashMap<Class, MvpDelegate> minorMvpDelegates;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mvpDelegate = new TransThreadMvpDelegate<>(initContractPresenter(), initContractView());
+        mvpDelegate = new MvpDelegate<>(initContractPresenter(), initContractView());
         mvpDelegate.attachView();
         initMinorMvpDelegates();
     }
@@ -73,7 +73,7 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
                 Class<? extends Contract.Presenter>[] presenters = annotation.value();
                 for (int i = 0; i < presenters.length; i += 2) {
                     Contract.Presenter presenter = (Contract.Presenter) ClassUtils.newInstance(presenters[i + 1], true);
-                    TransThreadMvpDelegate delegate = new TransThreadMvpDelegate<>(presenter, this);
+                    MvpDelegate delegate = new MvpDelegate<>(presenter, this);
                     minorMvpDelegates.put(presenters[i], delegate);
                     delegate.attachView();
                 }
@@ -93,7 +93,7 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
         super.onDestroy();
         mvpDelegate.detachView();
         if (minorMvpDelegates != null) {
-            for (Map.Entry<Class, TransThreadMvpDelegate> entry : minorMvpDelegates.entrySet()) {
+            for (Map.Entry<Class, MvpDelegate> entry : minorMvpDelegates.entrySet()) {
                 entry.getValue().detachView();
             }
         }
@@ -107,11 +107,15 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
         if (minorMvpDelegates == null) {
             throw new RuntimeException("请使用 @MinorPresenter 注解初始化 MinorPresenter, clazzOfPresenter: " + classOfPresenter);
         }
-        TransThreadMvpDelegate mvpDelegate = minorMvpDelegates.get(classOfPresenter);
+        MvpDelegate mvpDelegate = minorMvpDelegates.get(classOfPresenter);
         if (mvpDelegate == null) {
             throw new RuntimeException("无法找到该 presenter 的实例, 请确认是否已正确初始化. clazzOfPresenter: " + classOfPresenter);
         }
         return (T) mvpDelegate.getPresenter();
+    }
+
+    protected void addMvpCallAdapter(MvpCallAdapter callAdapter) {
+        mvpDelegate.addCallAdapter(callAdapter);
     }
 
     @Override
