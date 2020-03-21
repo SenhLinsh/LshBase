@@ -112,8 +112,18 @@ public class LshConfig {
         }
         // 2. 读取 DefaultConfig
         Config config = defaultConfigs.get(configClass);
-        if (config == null)
-            throw new IllegalArgumentException("获取配置 <" + filename + "> 前, 请使用 setDefaultConfig() 进行默认设置");
+        if (config == null) {
+            // 2.1 asset/config
+            json = ResourceUtils.getTextFromAssets("config/" + filename);
+            if (json == null) {
+                throw new IllegalArgumentException("获取配置 <" + filename + "> 前, 请使用 setDefaultConfig() 进行默认设置");
+            }
+            try {
+                config = gson.fromJson(json, configClass);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("assets 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
+            }
+        }
         if (jsonObject == null) {
             return (T) config;
         }
