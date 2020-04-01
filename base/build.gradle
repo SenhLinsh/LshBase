@@ -17,8 +17,13 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
 
-    implementation project(':ue')
-    implementation project(':uee')
+    try {
+        implementation project(':ue')
+        implementation project(':uee')
+    } catch (ignored) {
+        implementation 'com.github.SenhLinsh:Utils-Everywhere:3.+'
+        implementation 'com.github.SenhLinsh:Utils-Everywhere-Ex:3.+'
+    }
 
     // LshHttp
     api "com.squareup.okhttp3:okhttp:3.11.0"
