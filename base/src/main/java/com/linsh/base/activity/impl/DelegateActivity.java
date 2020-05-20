@@ -2,10 +2,10 @@ package com.linsh.base.activity.impl;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
 import com.linsh.base.activity.ActivityDelegate;
 import com.linsh.base.activity.IDelegateActivity;
-
-import androidx.annotation.Nullable;
 
 /**
  * <pre>
@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
  *    desc   :
  * </pre>
  */
-public class DelegateActivity extends ObservableActivity implements IDelegateActivity {
+public abstract class DelegateActivity extends ObservableActivity implements IDelegateActivity {
 
     private ActivityDelegate delegate;
 
