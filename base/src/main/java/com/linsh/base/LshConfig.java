@@ -6,6 +6,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.linsh.base.common.Constants;
 import com.linsh.base.config.Config;
 import com.linsh.base.config.FileConfig;
 import com.linsh.base.config.HttpConfig;
@@ -78,7 +79,7 @@ public class LshConfig {
                 .appDirName(ContextUtils.getPackageName())
                 .build());
         setDefaultConfig(HttpConfig.class, new HttpConfig.Builder()
-                .baseUrl("https://github.com/")
+                .baseUrl(Constants.BASE_URL)
                 .build());
         LogConfig config = new LogConfig();
         if (DebugUtilsEx.isDebuggable()) {

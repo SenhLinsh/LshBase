@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Interceptor;
@@ -61,22 +62,31 @@ public class RetrofitManager implements HttpManager {
     }
 
     private static Retrofit build(final HttpConfig config) {
+        OkHttpClient.Builder callFactoryBuilder = new OkHttpClient.Builder();
+        // 连接超时
+        if (config.connectTimeout() > 0)
+            callFactoryBuilder.connectTimeout(config.connectTimeout(), TimeUnit.MILLISECONDS);
+        // 读流超时
+        if (config.readTimeout() > 0) {
+            callFactoryBuilder.readTimeout(config.readTimeout(), TimeUnit.MILLISECONDS);
+        }
+        // 添加 Http Header
+        if (config.getHeaders().size() > 0) {
+            callFactoryBuilder.addInterceptor(new Interceptor() {
+                @Override
+                public Response intercept(@NonNull Chain chain) throws IOException {
+                    Request.Builder newBuilder = chain.request().newBuilder();
+                    return chain.proceed(addHeader(newBuilder, config.getHeaders()).build());
+                }
+            });
+        }
         Retrofit.Builder builder = new Retrofit.Builder();
         return builder.baseUrl(config.baseUrl())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addCallAdapterFactory(DefaultCallAdapterFactory.create())
                 .addConverterFactory(StringConverterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
-                .callFactory(new OkHttpClient.Builder()
-                        // 添加 Http Header
-                        .addInterceptor(new Interceptor() {
-                            @Override
-                            public Response intercept(Chain chain) throws IOException {
-                                Request.Builder newBuilder = chain.request().newBuilder();
-                                return chain.proceed(addHeader(newBuilder, config.getHeaders()).build());
-                            }
-                        })
-                    .build())
+                .callFactory(callFactoryBuilder.build())
                 .build();
     }
 
