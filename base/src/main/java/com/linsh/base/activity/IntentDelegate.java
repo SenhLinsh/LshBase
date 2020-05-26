@@ -21,6 +21,8 @@ import java.util.List;
  */
 public interface IntentDelegate {
 
+    IntentDelegate context(Context context);
+
     IntentDelegate target(Class<? extends Activity> activity);
 
     IntentDelegate target(String className);

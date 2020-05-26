@@ -46,7 +46,8 @@ class IntentDelegateImpl implements IntentDelegate {
         this.intent = intent;
     }
 
-    IntentDelegate context(Context context) {
+    @Override
+    public IntentDelegate context(Context context) {
         this.context = context;
         return this;
     }
