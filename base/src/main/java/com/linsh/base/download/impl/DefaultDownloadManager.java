@@ -31,6 +31,7 @@ import okhttp3.Response;
  */
 public class DefaultDownloadManager implements DownloadManager {
 
+    private static final int MAX_DOWNLOADING_SIZE = 5;
     private final DownloadListener listener;
     private final boolean passIfAlreadyCompleted;
     private final boolean wifiRequired;
@@ -50,12 +51,11 @@ public class DefaultDownloadManager implements DownloadManager {
         this.wifiRequired = wifiRequired;
         this.autoCallbackToUIThread = autoCallbackToUIThread;
         this.retryTime = retryTime;
-        this.httpManager = LshHttp.getInstance(
-                new HttpConfig.Builder()
-                        .baseUrl(Constants.BASE_URL)
-                        .connectTimeout(30 * 1000)
-                        .readTimeout(30 * 1000)
-                        .build());
+        this.httpManager = LshHttp.getInstance(new HttpConfig.Builder()
+                .baseUrl(Constants.BASE_URL)
+                .connectTimeout(30 * 1000)
+                .readTimeout(30 * 1000)
+                .build());
     }
 
     @Override
@@ -103,8 +103,18 @@ public class DefaultDownloadManager implements DownloadManager {
         }
         final DownloadTaskImpl task;
         synchronized (DefaultDownloadManager.this) {
-            if (pendingTasks.size() == 0 || downloadingTasks.size() >= 5) {
+            if (pendingTasks.size() == 0) {
+                if (listener != null && downloadingTasks.size() == 0) {
+                    listener.onEnd();
+                }
                 return;
+            }
+            if (downloadingTasks.size() >= MAX_DOWNLOADING_SIZE) {
+                return;
+            }
+            if (listener != null && downloadingTasks.size() == 0
+                    && finishedTasks.size() == 0 && errorTasks.size() == 0) {
+                listener.onStart();
             }
             task = pendingTasks.remove();
             task.setStatus(DownloadTask.STATUS_DOWNLOADING);
@@ -114,6 +124,9 @@ public class DefaultDownloadManager implements DownloadManager {
             @Override
             public void run() {
                 try {
+                    if (listener != null) {
+                        listener.onTaskStart(task);
+                    }
                     task.execute();
                     if (!task.isCancel()) {
                         task.setStatus(DownloadTask.STATUS_FINISHED);
