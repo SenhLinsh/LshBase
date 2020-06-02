@@ -3,6 +3,8 @@ package com.linsh.base.mvp;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
 import com.linsh.base.LshActivity;
 import com.linsh.base.LshLog;
 import com.linsh.base.activity.base.BaseActivity;
@@ -11,8 +13,6 @@ import com.linsh.utilseverywhere.ClassUtils;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import androidx.annotation.Nullable;
 
 /**
  * <pre>
@@ -42,10 +42,10 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
         Class<? extends Contract.Presenter> extra = LshActivity.intent(getIntent()).getPresenter();
         if (extra != null) {
             try {
-                presenter = (P) ClassUtils.newInstance(extra);
+                presenter = (P) ClassUtils.newInstance(extra, true);
                 LshLog.i(TAG, "initialize presenter from intent: " + extra);
             } catch (Exception e) {
-                LshLog.w(TAG, "initialize presenter from intent failed: " + extra);
+                throw new IllegalArgumentException("initialize presenter from intent failed: " + extra, e);
             }
         }
         if (presenter != null) return presenter;
