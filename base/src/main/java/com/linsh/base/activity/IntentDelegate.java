@@ -125,8 +125,6 @@ public interface IntentDelegate {
 
     void startForResult(Activity activity, int requestCode);
 
-    void startForResult(Activity activity, int requestCode, ActivitySubscribe.OnActivityResult subscriber);
-
     IntentDelegate subscribe(Class<? extends ActivitySubscribe> subscriber);
 
     List<Class<? extends ActivitySubscribe>> getSubscribers();

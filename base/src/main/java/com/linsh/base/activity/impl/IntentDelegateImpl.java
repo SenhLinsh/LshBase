@@ -9,9 +9,8 @@ import android.os.Parcelable;
 import com.google.gson.Gson;
 import com.linsh.base.LshLog;
 import com.linsh.base.activity.ActivitySubscribe;
-import com.linsh.base.mvp.Contract;
-import com.linsh.base.activity.IObservableActivity;
 import com.linsh.base.activity.IntentDelegate;
+import com.linsh.base.mvp.Contract;
 import com.linsh.utilseverywhere.ContextUtils;
 
 import java.io.Serializable;
@@ -414,13 +413,5 @@ class IntentDelegateImpl implements IntentDelegate {
     @Override
     public void startForResult(Activity activity, int requestCode) {
         activity.startActivityForResult(intent, requestCode);
-    }
-
-    @Override
-    public void startForResult(Activity activity, int requestCode, ActivitySubscribe.OnActivityResult subscriber) {
-        if (!(activity instanceof IObservableActivity))
-            throw new IllegalArgumentException("该 Activity 未实现 " + IObservableActivity.class + " 接口");
-        activity.startActivityForResult(intent, requestCode);
-        ((IObservableActivity) activity).subscribe(subscriber);
     }
 }
