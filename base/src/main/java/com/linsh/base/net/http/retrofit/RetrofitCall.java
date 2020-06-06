@@ -13,6 +13,7 @@ import okhttp3.Callback;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
+import okio.Timeout;
 import retrofit2.Converter;
 
 /**
@@ -61,6 +62,11 @@ class RetrofitCall implements RequestCall {
     @Override
     public boolean isCanceled() {
         return actual.isCanceled();
+    }
+
+    @Override
+    public Timeout timeout() {
+        return actual.timeout();
     }
 
     @Override
