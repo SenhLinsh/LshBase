@@ -16,8 +16,8 @@ import com.linsh.lshutils.utils.DebugUtilsEx;
 import com.linsh.utilseverywhere.AppUtils;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.DeviceUtils;
+import com.linsh.utilseverywhere.ExceptionUtils;
 import com.linsh.utilseverywhere.FileUtils;
-import com.linsh.utilseverywhere.ObjectUtils;
 import com.linsh.utilseverywhere.ResourceUtils;
 
 import java.io.File;
@@ -183,7 +183,7 @@ public class LshConfig {
             throw new RuntimeException("无法获取公共配置参数, 请检查是否已根据规范进行配置.");
         }
         T t = gson.fromJson(json, configClass);
-        ObjectUtils.checkNotNull(t, filename + " 解析失败, 请检查配置内容");
+        ExceptionUtils.checkNotNull(t, filename + " 解析失败, 请检查配置内容");
         return t;
     }
 
