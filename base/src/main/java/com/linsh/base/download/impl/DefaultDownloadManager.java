@@ -1,6 +1,7 @@
 package com.linsh.base.download.impl;
 
 import com.linsh.base.LshHttp;
+import com.linsh.base.LshLog;
 import com.linsh.base.LshThread;
 import com.linsh.base.common.Constants;
 import com.linsh.base.common.Consumer;
@@ -31,6 +32,7 @@ import okhttp3.Response;
  */
 public class DefaultDownloadManager implements DownloadManager {
 
+    private static final String TAG = "DefaultDownloadManager";
     private static final int MAX_DOWNLOADING_SIZE = 5;
     private final DownloadListener listener;
     private final boolean passIfAlreadyCompleted;
@@ -124,9 +126,8 @@ public class DefaultDownloadManager implements DownloadManager {
             @Override
             public void run() {
                 try {
-                    if (listener != null) {
-                        listener.onTaskStart(task);
-                    }
+                    onTaskStart(task);
+                    // execute
                     task.execute();
                     if (!task.isCancel()) {
                         task.setStatus(DownloadTask.STATUS_FINISHED);
@@ -139,40 +140,19 @@ public class DefaultDownloadManager implements DownloadManager {
                             downloadingTasks.remove(task);
                         }
                     }
-
-                    if (listener != null) {
-                        if (autoCallbackToUIThread) {
-                            LshThread.ui(new Runnable() {
-                                @Override
-                                public void run() {
-                                    listener.onTaskEnd(task, task.isCancel() ? EndCause.CANCELED : EndCause.FINISHED, null);
-                                }
-                            });
-                        } else {
-                            listener.onTaskEnd(task, task.isCancel() ? EndCause.CANCELED : EndCause.FINISHED, null);
-                        }
-                    }
+                    onTaskEnd(task, task.isCancel() ? EndCause.CANCELED : EndCause.FINISHED, null);
                 } catch (final Exception e) {
                     if (task.getRetryTime() > retryTime) {
                         task.setStatus(DownloadTask.STATUS_ERROR);
                         synchronized (DefaultDownloadManager.this) {
                             downloadingTasks.remove(task);
-                            finishedTasks.add(task);
+                            errorTasks.add(task);
                         }
-                        if (listener != null) {
-                            if (autoCallbackToUIThread) {
-                                LshThread.ui(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        listener.onTaskEnd(task, EndCause.ERROR, e);
-                                    }
-                                });
-                            } else {
-                                listener.onTaskEnd(task, EndCause.ERROR, e);
-                            }
-                        }
+                        onTaskEnd(task, EndCause.ERROR, e);
                     } else {
+                        task.increaseRetryTime();
                         task.setStatus(DownloadTask.STATUS_PENDING);
+                        LshLog.v(TAG, "retry task, times: " + task.getRetryTime());
                         synchronized (DefaultDownloadManager.this) {
                             downloadingTasks.remove(task);
                             pendingTasks.add(task);
@@ -182,6 +162,38 @@ public class DefaultDownloadManager implements DownloadManager {
                 downloadNext();
             }
         });
+    }
+
+    private void onTaskStart(final DownloadTaskImpl task) {
+        LshLog.v(TAG, "onTaskStart");
+        if (listener != null) {
+            if (autoCallbackToUIThread) {
+                LshThread.ui(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onTaskEnd(task, task.isCancel() ? EndCause.CANCELED : EndCause.FINISHED, null);
+                    }
+                });
+            } else {
+                listener.onTaskStart(task);
+            }
+        }
+    }
+
+    private void onTaskEnd(final DownloadTaskImpl task, final EndCause endCause, final Exception e) {
+        LshLog.v(TAG, "onTaskEnd, cause: " + endCause);
+        if (listener != null) {
+            if (autoCallbackToUIThread) {
+                LshThread.ui(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onTaskEnd(task, endCause, e);
+                    }
+                });
+            } else {
+                listener.onTaskEnd(task, endCause, e);
+            }
+        }
     }
 
     @Override
@@ -244,7 +256,7 @@ public class DefaultDownloadManager implements DownloadManager {
         private DownloadListener listener;
         private boolean passIfAlreadyCompleted = false;
         private boolean wifiRequired = false;
-        private boolean autoCallbackToUIThread = true;
+        private boolean autoCallbackToUIThread = false;
         private int retryTime;
 
         @Override
