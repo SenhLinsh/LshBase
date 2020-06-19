@@ -1,11 +1,13 @@
 package com.linsh.base.net.nas.impl;
 
 import com.linsh.base.net.nas.NasManager;
-import com.linsh.lshutils.utils.StreamUtilsEx;
+import com.linsh.utilseverywhere.StreamUtils;
 import com.linsh.utilseverywhere.StringUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 
 import jcifs.smb.NtlmPasswordAuthentication;
@@ -39,14 +41,44 @@ public class DefaultNasManager implements NasManager {
     }
 
     @Override
-    public InputStream fetch(String path) throws Exception {
+    public void mkdir(String path) throws Exception {
+        buildSmbFile(path).mkdir();
+    }
+
+    @Override
+    public InputStream pull(String path) throws Exception {
         return buildSmbFile(path).getInputStream();
     }
 
     @Override
+    public String read(String path) throws Exception {
+        InputStream inputStream = pull(path);
+        return StreamUtils.readAsString(inputStream);
+    }
+
+    @Override
     public void download(String path, File dest) throws Exception {
-        InputStream inputStream = fetch(path);
-        StreamUtilsEx.saveToFile(inputStream, dest);
+        InputStream inputStream = pull(path);
+        StreamUtils.write(inputStream, dest);
+    }
+
+    @Override
+    public void push(String path, InputStream in) throws Exception {
+        OutputStream outputStream = buildSmbFile(path).getOutputStream();
+        StreamUtils.write(in, outputStream);
+    }
+
+    @Override
+    public void write(String path, String content) throws Exception {
+        OutputStream outputStream = buildSmbFile(path).getOutputStream();
+        outputStream.write(content.getBytes());
+    }
+
+    @Override
+    public void upload(String path, File src) throws Exception {
+        OutputStream outputStream = buildSmbFile(path).getOutputStream();
+        FileInputStream inputStream = new FileInputStream(src);
+        StreamUtils.write(inputStream, outputStream);
     }
 
     private SmbFile buildSmbFile(String path) {

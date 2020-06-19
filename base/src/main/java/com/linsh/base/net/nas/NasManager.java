@@ -21,11 +21,25 @@ public interface NasManager {
     String[] list(String path) throws Exception;
 
     /**
-     * 拉取输入流
+     * 创建文件夹
+     *
+     * @param path 文件夹路径
+     */
+    void mkdir(String path) throws Exception;
+
+    /**
+     * 拉流
      *
      * @param path 文件路径
      */
-    InputStream fetch(String path) throws Exception;
+    InputStream pull(String path) throws Exception;
+
+    /**
+     * 读取文本
+     *
+     * @param path 文件路径
+     */
+    String read(String path) throws Exception;
 
     /**
      * 下载文件
@@ -34,6 +48,32 @@ public interface NasManager {
      * @param dest 目标文件
      */
     void download(String path, File dest) throws Exception;
+
+
+    /**
+     * 推流
+     *
+     * @param path 文件路径
+     * @param in   流
+     */
+    void push(String path, InputStream in) throws Exception;
+
+
+    /**
+     * 写入文本
+     *
+     * @param path    文件路径
+     * @param content 文本内容
+     */
+    void write(String path, String content) throws Exception;
+
+    /**
+     * 上传文件
+     *
+     * @param path 目标路径
+     * @param src  源文件路径
+     */
+    void upload(String path, File src) throws Exception;
 
     interface Builder {
 

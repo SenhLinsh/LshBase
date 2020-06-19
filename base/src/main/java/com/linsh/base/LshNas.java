@@ -34,7 +34,7 @@ public class LshNas {
     /**
      * 为 NasManager 构建一个 Builder
      */
-    public static NasManager.Builder build() {
+    public static NasManager.Builder builder() {
         return new DefaultNasManager.Builder();
     }
 }
