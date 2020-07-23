@@ -29,7 +29,7 @@ public class LshFile {
         FileConfig config = LshConfig.get(FileConfig.class);
         manager = new LshFileManager(config);
         APP_DIR_IN_TEXT = new File(Environment.getExternalStorageDirectory(),
-                "linsh/text/开发/linsh/data/" + ContextUtils.getPackageName());
+                "linsh/text/Develop/linsh/data/" + ContextUtils.getPackageName());
     }
 
     public static FileBuilder file(File file) {
