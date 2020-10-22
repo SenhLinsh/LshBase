@@ -17,7 +17,7 @@ import com.linsh.base.activity.IntentDelegate;
  *    desc   :
  * </pre>
  */
-public class LshActivityManager implements ActivityManager {
+public class ActivityManagerImpl implements ActivityManager {
 
     @Override
     public ActivityDelegate delegate(Activity activity) {

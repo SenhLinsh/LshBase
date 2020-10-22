@@ -6,7 +6,7 @@ import android.content.Intent;
 import com.linsh.base.activity.ActivityDelegate;
 import com.linsh.base.activity.ActivityManager;
 import com.linsh.base.activity.IntentDelegate;
-import com.linsh.base.activity.impl.LshActivityManager;
+import com.linsh.base.activity.impl.ActivityManagerImpl;
 
 /**
  * <pre>
@@ -18,7 +18,7 @@ import com.linsh.base.activity.impl.LshActivityManager;
  */
 public class LshActivity {
 
-    private static ActivityManager manager = new LshActivityManager();
+    private static ActivityManager manager = new ActivityManagerImpl();
 
     public static ActivityDelegate delegate(Activity activity) {
         return manager.delegate(activity);
