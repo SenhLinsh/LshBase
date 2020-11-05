@@ -1,10 +1,15 @@
 package com.linsh.base.mvp;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import com.linsh.base.LshLog;
 import com.linsh.base.LshThread;
 import com.linsh.base.thread.ThreadPolicy;
 import com.linsh.utilseverywhere.ThreadUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -49,7 +54,7 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
                     try {
                         abstractInvokePresenterMethod(proxy, method, args);
                     } catch (Throwable e) {
-                        throw new RuntimeException("delegate presenter method " + method.toString() + " throw an exception: ", e);
+                        throwException(e);
                     }
                 }
             });
@@ -83,7 +88,7 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
                     try {
                         abstractInvokeViewMethod(proxy, method, args);
                     } catch (Throwable e) {
-                        throw new RuntimeException("delegate delegatedView method " + method.toString() + " throw an exception: ", e);
+                        throwException(e);
                     }
                 }
             });
@@ -104,11 +109,35 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
 
     @Override
     protected Object invokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable {
-        return method.invoke(originPresenter, args);
+        try {
+            return method.invoke(originPresenter, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
     }
 
     @Override
     public Object invokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
-        return method.invoke(originView, args);
+        try {
+            return method.invoke(originView, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
+    }
+
+    private void throwException(Throwable cause) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            throw new InvocationException(cause);
+        } else {
+            throw new RuntimeException(cause);
+        }
+    }
+
+    private static class InvocationException extends RuntimeException {
+
+        @RequiresApi(api = Build.VERSION_CODES.N)
+        public InvocationException(Throwable cause) {
+            super(null, cause, false, false);
+        }
     }
 }
