@@ -65,12 +65,9 @@ import java.util.Map;
  */
 public class LshConfig {
 
-    //    private static final String config_dir_path = Environment.getExternalStorageDirectory() + "/linsh/config";
-    private static final String config_dir_path_from_text = Environment.getExternalStorageDirectory() + "/linsh/text/开发/linsh/config/";
-    //    private static final String public_config_dir_path = Environment.getExternalStorageDirectory()
-    //            + "/linsh/config/com.linsh.base/";
+    private static final String config_dir_path_from_text = Environment.getExternalStorageDirectory() + "/linsh/text/Develop/linsh/config/";
     private static final String public_config_dir_path_from_text = Environment.getExternalStorageDirectory()
-            + "/linsh/text/开发/linsh/config/com.linsh.base/";
+            + "/linsh/text/Develop/linsh/config/com.linsh.base/";
 
     private static final Map<Class<? extends Config>, Config> defaultConfigs = new HashMap<>();
 
