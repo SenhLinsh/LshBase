@@ -23,7 +23,7 @@ public class DefaultTextAppManager implements ITextAppManager {
     private static final String ACTIVITY_NAME_TEXT_EDIT = "com.linsh.text.page.text.TextEditActivity";
 
     @Override
-    public void start() {
+    public void launch() {
         Intent intent = IntentUtils.getLaunchAppIntent(PACKAGE_NAME);
         if (intent != null && intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
             ContextUtils.startActivity(intent);
@@ -33,7 +33,7 @@ public class DefaultTextAppManager implements ITextAppManager {
     }
 
     @Override
-    public void start(Context context) {
+    public void launch(Context context) {
         Intent intent = IntentUtils.getLaunchAppIntent(PACKAGE_NAME);
         if (intent != null && intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
             context.startActivity(intent);
@@ -43,10 +43,10 @@ public class DefaultTextAppManager implements ITextAppManager {
     }
 
     @Override
-    public void startTextEdit(String filePath) {
+    public void gotoEditFile(String filePath) {
         Intent intent = new Intent().setClassName(PACKAGE_NAME, ACTIVITY_NAME_TEXT_EDIT);
-        if (intent != null && intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
-            intent.putExtra("extra_file_path", filePath);
+        if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
+            intent.putExtra(ITextAppManager.EXTRA_TEXT_EDIT_PATH, filePath);
             ContextUtils.startActivity(intent);
         } else {
             ToastUtils.show("无法找到该页面");
@@ -54,10 +54,10 @@ public class DefaultTextAppManager implements ITextAppManager {
     }
 
     @Override
-    public void startTextEdit(String filePath, Context context) {
+    public void gotoEditFile(String filePath, Context context) {
         Intent intent = new Intent().setClassName(PACKAGE_NAME, ACTIVITY_NAME_TEXT_EDIT);
-        if (intent != null && intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
-            intent.putExtra("extra_file_path", filePath);
+        if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
+            intent.putExtra(ITextAppManager.EXTRA_TEXT_EDIT_PATH, filePath);
             context.startActivity(intent);
         } else {
             ToastUtils.show("无法找到该页面");
@@ -65,10 +65,43 @@ public class DefaultTextAppManager implements ITextAppManager {
     }
 
     @Override
-    public void startTextEditForResult(String filePath, Activity activity, int requestCode) {
+    public void gotoEditFile(String filePath, Activity activity, int requestCode) {
         Intent intent = new Intent().setClassName(PACKAGE_NAME, ACTIVITY_NAME_TEXT_EDIT);
-        if (intent != null && intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
-            intent.putExtra("extra_file_path", filePath);
+        if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
+            intent.putExtra(ITextAppManager.EXTRA_TEXT_EDIT_PATH, filePath);
+            activity.startActivityForResult(intent, requestCode);
+        } else {
+            ToastUtils.show("无法找到该页面");
+        }
+    }
+
+    @Override
+    public void gotoEditText(String text) {
+        Intent intent = new Intent().setClassName(PACKAGE_NAME, ACTIVITY_NAME_TEXT_EDIT);
+        if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
+            intent.putExtra(ITextAppManager.EXTRA_TEXT_EDIT_TEXT, text);
+            ContextUtils.startActivity(intent);
+        } else {
+            ToastUtils.show("无法找到该页面");
+        }
+    }
+
+    @Override
+    public void gotoEditText(String text, Context context) {
+        Intent intent = new Intent().setClassName(PACKAGE_NAME, ACTIVITY_NAME_TEXT_EDIT);
+        if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
+            intent.putExtra(ITextAppManager.EXTRA_TEXT_EDIT_TEXT, text);
+            context.startActivity(intent);
+        } else {
+            ToastUtils.show("无法找到该页面");
+        }
+    }
+
+    @Override
+    public void gotoEditText(String text, Activity activity, int requestCode) {
+        Intent intent = new Intent().setClassName(PACKAGE_NAME, ACTIVITY_NAME_TEXT_EDIT);
+        if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
+            intent.putExtra(ITextAppManager.EXTRA_TEXT_EDIT_TEXT, text);
             activity.startActivityForResult(intent, requestCode);
         } else {
             ToastUtils.show("无法找到该页面");

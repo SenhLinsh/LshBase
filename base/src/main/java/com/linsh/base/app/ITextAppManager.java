@@ -13,13 +13,22 @@ import android.content.Context;
  */
 public interface ITextAppManager {
 
-    void start();
+    String EXTRA_TEXT_EDIT_PATH = "path";
+    String EXTRA_TEXT_EDIT_TEXT = "text";
 
-    void start(Context context);
+    void launch();
 
-    void startTextEdit(String filePath);
+    void launch(Context context);
 
-    void startTextEdit(String filePath, Context context);
+    void gotoEditFile(String filePath);
 
-    void startTextEditForResult(String filePath, Activity activity, int requestCode);
+    void gotoEditFile(String filePath, Context context);
+
+    void gotoEditFile(String filePath, Activity activity, int requestCode);
+
+    void gotoEditText(String text);
+
+    void gotoEditText(String text, Context context);
+
+    void gotoEditText(String text, Activity activity, int requestCode);
 }
