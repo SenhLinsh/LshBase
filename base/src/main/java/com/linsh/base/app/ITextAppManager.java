@@ -22,9 +22,15 @@ public interface ITextAppManager {
 
     void gotoEditFile(String filePath);
 
+    void gotoEditFile(String filePath, String text);
+
     void gotoEditFile(String filePath, Context context);
 
+    void gotoEditFile(String filePath, String text, Context context);
+
     void gotoEditFile(String filePath, Activity activity, int requestCode);
+
+    void gotoEditFile(String filePath, String text, Activity activity, int requestCode);
 
     void gotoEditText(String text);
 
