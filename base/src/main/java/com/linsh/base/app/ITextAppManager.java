@@ -15,26 +15,27 @@ public interface ITextAppManager {
 
     String EXTRA_TEXT_EDIT_PATH = "path";
     String EXTRA_TEXT_EDIT_TEXT = "text";
+    String EXTRA_TEXT_EDIT_EDIT = "edit";
 
     void launch();
 
     void launch(Context context);
 
-    void gotoEditFile(String filePath);
+    void gotoEditFile(String filePath, boolean isEditMode);
 
-    void gotoEditFile(String filePath, String text);
+    void gotoEditFile(String filePath, boolean isEditMode, Context context);
 
-    void gotoEditFile(String filePath, Context context);
+    void gotoEditFile(String filePath, boolean isEditMode, Activity activity, int requestCode);
 
-    void gotoEditFile(String filePath, String text, Context context);
+    void gotoEditFile(String filePath, String text, boolean isEditMode);
 
-    void gotoEditFile(String filePath, Activity activity, int requestCode);
+    void gotoEditFile(String filePath, String text, boolean isEditMode, Context context);
 
-    void gotoEditFile(String filePath, String text, Activity activity, int requestCode);
+    void gotoEditFile(String filePath, String text, boolean isEditMode, Activity activity, int requestCode);
 
-    void gotoEditText(String text);
+    void gotoEditText(String text, boolean isEditMode);
 
-    void gotoEditText(String text, Context context);
+    void gotoEditText(String text, boolean isEditMode, Context context);
 
-    void gotoEditText(String text, Activity activity, int requestCode);
+    void gotoEditText(String text, boolean isEditMode, Activity activity, int requestCode);
 }
