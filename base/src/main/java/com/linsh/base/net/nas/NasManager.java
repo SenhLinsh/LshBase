@@ -14,6 +14,13 @@ import java.io.InputStream;
 public interface NasManager {
 
     /**
+     * 构建 NasFile 对象
+     *
+     * @param path 文件路径
+     */
+    NasFile file(String path) throws Exception;
+
+    /**
      * 列出指定文件夹下的文件
      *
      * @param path 文件夹路径
@@ -74,6 +81,14 @@ public interface NasManager {
      * @param src  源文件路径
      */
     void upload(String path, File src) throws Exception;
+
+    /**
+     * 移动文件
+     *
+     * @param srcPath  源文件路径
+     * @param destPath 目标路径
+     */
+    void move(String srcPath, String destPath) throws Exception;
 
     interface Builder {
 

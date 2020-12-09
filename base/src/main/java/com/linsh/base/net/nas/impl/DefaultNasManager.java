@@ -1,5 +1,6 @@
 package com.linsh.base.net.nas.impl;
 
+import com.linsh.base.net.nas.NasFile;
 import com.linsh.base.net.nas.NasManager;
 import com.linsh.utilseverywhere.StreamUtils;
 import com.linsh.utilseverywhere.StringUtils;
@@ -8,7 +9,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbFile;
@@ -33,6 +33,11 @@ public class DefaultNasManager implements NasManager {
         this.dir = dir;
         this.name = name;
         this.password = password;
+    }
+
+    @Override
+    public NasFile file(String path) throws Exception {
+        return new NasFileImpl(buildSmbFile(path));
     }
 
     @Override
@@ -81,16 +86,17 @@ public class DefaultNasManager implements NasManager {
         StreamUtils.write(inputStream, outputStream);
     }
 
-    private SmbFile buildSmbFile(String path) {
-        try {
-            if (name != null && password != null) {
-                NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(ip + ";" + name + ":" + password);
-                return new SmbFile("smb://" + ip + "/" + dir + "/" + path, auth);
-            }
-            return new SmbFile("smb://" + ip + "/" + dir + "/" + path);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
+    @Override
+    public void move(String srcPath, String destPath) throws Exception {
+        buildSmbFile(srcPath).renameTo(buildSmbFile(destPath));
+    }
+
+    private SmbFile buildSmbFile(String path) throws Exception {
+        if (name != null && password != null) {
+            NtlmPasswordAuthentication auth = new NtlmPasswordAuthentication(ip + ";" + name + ":" + password);
+            return new SmbFile("smb://" + ip + "/" + dir + "/" + path, auth);
         }
+        return new SmbFile("smb://" + ip + "/" + dir + "/" + path);
     }
 
     public static class Builder implements NasManager.Builder {
