@@ -42,6 +42,8 @@ public class DefaultNasManager implements NasManager {
 
     @Override
     public String[] list(String path) throws Exception {
+        if (!path.endsWith("/"))
+            path += "/";
         return buildSmbFile(path).list();
     }
 
