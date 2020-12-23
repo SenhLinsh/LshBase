@@ -89,6 +89,11 @@ public class DefaultNasManager implements NasManager {
     }
 
     @Override
+    public void delete(String path) throws Exception {
+        buildSmbFile(path).delete();
+    }
+
+    @Override
     public void move(String srcPath, String destPath) throws Exception {
         buildSmbFile(srcPath).renameTo(buildSmbFile(destPath));
     }

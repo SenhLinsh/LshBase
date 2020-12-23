@@ -83,12 +83,20 @@ public interface NasManager {
     void upload(String path, File src) throws Exception;
 
     /**
+     * 删除文件
+     *
+     * @param path 目标路径
+     */
+    void delete(String path) throws Exception;
+
+    /**
      * 移动文件
      *
      * @param srcPath  源文件路径
      * @param destPath 目标路径
      */
     void move(String srcPath, String destPath) throws Exception;
+
 
     interface Builder {
 
