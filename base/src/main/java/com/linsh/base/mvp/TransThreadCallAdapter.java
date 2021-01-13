@@ -23,13 +23,6 @@ import java.lang.reflect.Method;
 abstract class TransThreadCallAdapter extends MvpCallAdapter {
 
     private static final String TAG = "TransThreadCallAdapter";
-    private final Contract.Presenter originPresenter;
-    private final Contract.View originView;
-
-    public TransThreadCallAdapter(Contract.Presenter originPresenter, Contract.View originView) {
-        this.originPresenter = originPresenter;
-        this.originView = originView;
-    }
 
     @Override
     protected void onBind(Contract.Presenter delegatedPresenter, Contract.View delegatedView, MvpCallExecutor callExecutor) {
@@ -107,10 +100,14 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
 
     abstract Object abstractInvokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable;
 
+    abstract Contract.Presenter getOriginPresenter();
+
+    abstract Contract.View getOriginView();
+
     @Override
     protected Object invokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            return method.invoke(originPresenter, args);
+            return method.invoke(getOriginPresenter(), args);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
@@ -119,7 +116,7 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
     @Override
     public Object invokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            return method.invoke(originView, args);
+            return method.invoke(getOriginView(), args);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }

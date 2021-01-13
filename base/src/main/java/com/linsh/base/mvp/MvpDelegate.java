@@ -35,17 +35,18 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
     private V originView;
     private boolean isViewAttached;
 
+    private final PresenterInvocationHandler presenterInvocationHandler = new PresenterInvocationHandler();
+    private final ViewInvocationHandler viewInvocationHandler = new ViewInvocationHandler();
     private MvpCallExecutor callExecutor;
     private MvpCallAdapter callAdapter;
-    private PresenterInvocationHandler presenterInvocationHandler = new PresenterInvocationHandler();
-    private ViewInvocationHandler viewInvocationHandler = new ViewInvocationHandler();
 
     public MvpDelegate(P presenter, V view) {
         this.originPresenter = presenter;
         this.originView = view;
         this.delegatedPresenter = delegatePresenter();
         this.delegatedView = delegateView();
-        this.callAdapter = new TransThreadCallAdapter(originPresenter, originView) {
+        // 定义 callAdapter 最顶层的 parent
+        this.callAdapter = new TransThreadCallAdapter() {
             @Override
             Object abstractInvokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable {
                 return callAdapter.invokePresenterMethod(proxy, method, args);
@@ -55,7 +56,39 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
             Object abstractInvokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
                 return callAdapter.invokeViewMethod(proxy, method, args);
             }
+
+            @Override
+            Contract.Presenter getOriginPresenter() {
+                return originPresenter;
+            }
+
+            @Override
+            Contract.View getOriginView() {
+                return originView;
+            }
         };
+    }
+
+    public void setOriginPresenter(P presenter) {
+        this.originPresenter = presenter;
+        this.delegatedPresenter = delegatePresenter();
+        // 通知 call adapter 更新绑定 presenter
+        MvpCallAdapter callAdapter = this.callAdapter;
+        while (callAdapter != null) {
+            callAdapter.onBind(delegatedPresenter, delegatedView, callExecutor);
+            callAdapter = callAdapter.getParent();
+        }
+    }
+
+    public void setOriginView(V view) {
+        this.originView = view;
+        this.delegatedView = delegateView();
+        // 通知 call adapter 更新绑定 view
+        MvpCallAdapter callAdapter = this.callAdapter;
+        while (callAdapter != null) {
+            callAdapter.onBind(delegatedPresenter, delegatedView, callExecutor);
+            callAdapter = callAdapter.getParent();
+        }
     }
 
     public V getView() {

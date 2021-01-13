@@ -64,6 +64,10 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
         throw new RuntimeException("请通过 Intent 或注解设置 Presenter");
     }
 
+    protected Contract.View initContractView() {
+        return this;
+    }
+
     private void initMinorMvpDelegates() {
         // 通过注解设置 MinorPresenter
         MinorPresenter annotation = getClass().getAnnotation(MinorPresenter.class);
@@ -84,8 +88,12 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
         }
     }
 
-    protected Contract.View initContractView() {
-        return this;
+    protected void setContractPresenter(P presenter) {
+        mvpDelegate.setOriginPresenter(presenter);
+    }
+
+    protected void setContractView(Contract.View view) {
+        mvpDelegate.setOriginView(view);
     }
 
     @Override
