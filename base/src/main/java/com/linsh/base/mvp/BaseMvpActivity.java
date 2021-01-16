@@ -26,13 +26,14 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
 
     private static final String TAG = "BaseMvpActivity";
     private MvpDelegate<P, Contract.View> mvpDelegate;
-    private HashMap<Class, MvpDelegate> minorMvpDelegates;
+    private P delegatedPresenter;
+    private HashMap<Class, MvpDelegate<P, Contract.View>> minorMvpDelegates;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mvpDelegate = new MvpDelegate<>(initContractPresenter(), initContractView());
-        mvpDelegate.attachView();
+        mvpDelegate.attach();
         initMinorMvpDelegates();
     }
 
@@ -79,7 +80,7 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
                     Contract.Presenter presenter = (Contract.Presenter) ClassUtils.newInstance(presenters[i + 1], true);
                     MvpDelegate delegate = new MvpDelegate<>(presenter, this);
                     minorMvpDelegates.put(presenters[i], delegate);
-                    delegate.attachView();
+                    delegate.attach();
                 }
                 LshLog.d(TAG, "initialize minor presenters from annotation: " + Arrays.toString(annotation.value()));
             } catch (Exception e) {
@@ -97,25 +98,39 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mvpDelegate.detachView();
-        if (minorMvpDelegates != null) {
-            for (Map.Entry<Class, MvpDelegate> entry : minorMvpDelegates.entrySet()) {
-                entry.getValue().detachView();
-            }
-        }
+    public void attachPresenter(Contract.Presenter presenter) {
+        delegatedPresenter = (P) presenter;
+    }
+
+    @Override
+    public void detachPresenter() {
     }
 
     protected P getPresenter() {
-        return mvpDelegate.getPresenter();
+        return delegatedPresenter;
+    }
+
+    @Override
+    public Context getContext() {
+        return this;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mvpDelegate.detach();
+        if (minorMvpDelegates != null) {
+            for (Map.Entry<Class, MvpDelegate<P, Contract.View>> entry : minorMvpDelegates.entrySet()) {
+                entry.getValue().detach();
+            }
+        }
     }
 
     protected <T extends Contract.Presenter> T getMinorPresenter(Class<T> classOfPresenter) {
         if (minorMvpDelegates == null) {
             throw new RuntimeException("请使用 @MinorPresenter 注解初始化 MinorPresenter, clazzOfPresenter: " + classOfPresenter);
         }
-        MvpDelegate mvpDelegate = minorMvpDelegates.get(classOfPresenter);
+        MvpDelegate<P, Contract.View> mvpDelegate = minorMvpDelegates.get(classOfPresenter);
         if (mvpDelegate == null) {
             throw new RuntimeException("无法找到该 presenter 的实例, 请确认是否已正确初始化. clazzOfPresenter: " + classOfPresenter);
         }
@@ -124,10 +139,5 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
 
     protected void addMvpCallAdapter(MvpCallAdapter callAdapter) {
         mvpDelegate.addCallAdapter(callAdapter);
-    }
-
-    @Override
-    public Context getContext() {
-        return this;
     }
 }

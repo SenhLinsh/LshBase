@@ -33,10 +33,9 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
     private V delegatedView;
     private P originPresenter;
     private V originView;
-    private boolean isViewAttached;
 
-    private final PresenterInvocationHandler presenterInvocationHandler = new PresenterInvocationHandler();
-    private final ViewInvocationHandler viewInvocationHandler = new ViewInvocationHandler();
+    private final DelegatedPresenterInvocationHandler presenterInvocationHandler = new DelegatedPresenterInvocationHandler();
+    private final DelegatedViewInvocationHandler viewInvocationHandler = new DelegatedViewInvocationHandler();
     private MvpCallExecutor callExecutor;
     private MvpCallAdapter callAdapter;
 
@@ -56,32 +55,27 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
             Object abstractInvokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
                 return callAdapter.invokeViewMethod(proxy, method, args);
             }
-
-            @Override
-            Contract.Presenter getOriginPresenter() {
-                return originPresenter;
-            }
-
-            @Override
-            Contract.View getOriginView() {
-                return originView;
-            }
         };
     }
 
     public void setOriginPresenter(P presenter) {
         this.originPresenter = presenter;
+        this.delegatedPresenter.detachView();
         this.delegatedPresenter = delegatePresenter();
+        this.delegatedView = delegateView();
         // 通知 call adapter 更新绑定 presenter
         MvpCallAdapter callAdapter = this.callAdapter;
         while (callAdapter != null) {
             callAdapter.onBind(delegatedPresenter, delegatedView, callExecutor);
             callAdapter = callAdapter.getParent();
         }
+        attach();
     }
 
     public void setOriginView(V view) {
         this.originView = view;
+        this.delegatedView.detachPresenter();
+        this.delegatedPresenter = delegatePresenter();
         this.delegatedView = delegateView();
         // 通知 call adapter 更新绑定 view
         MvpCallAdapter callAdapter = this.callAdapter;
@@ -89,6 +83,7 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
             callAdapter.onBind(delegatedPresenter, delegatedView, callExecutor);
             callAdapter = callAdapter.getParent();
         }
+        attach();
     }
 
     public V getView() {
@@ -99,14 +94,14 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
         return delegatedPresenter;
     }
 
-    public void attachView() {
-        isViewAttached = true;
+    public void attach() {
         delegatedPresenter.attachView(delegatedView);
+        delegatedView.attachPresenter(delegatedPresenter);
     }
 
-    public void detachView() {
+    public void detach() {
         delegatedPresenter.detachView();
-        isViewAttached = false;
+        delegatedView.detachPresenter();
         originPresenter = null;
         originView = null;
     }
@@ -150,7 +145,6 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
     private <T extends Contract.View> T delegateView() {
         Set<Class> interfaces = new HashSet<>();
         Class<?> viewClass = originView.getClass();
-        out:
         while (viewClass != null) {
             Class<?>[] curInterfaces = viewClass.getInterfaces();
             for (Class<?> anInterface : curInterfaces) {
@@ -161,9 +155,9 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
             viewClass = viewClass.getSuperclass();
         }
         LshLog.v(TAG, "delegatedView: new proxy instance for Interfaces: " + ListUtils.toString(interfaces));
-        return (T) Proxy.newProxyInstance(originView.getClass().getClassLoader(), interfaces.toArray(new Class[interfaces.size()]), viewInvocationHandler);
+        return (T) Proxy.newProxyInstance(originView.getClass().getClassLoader(),
+                interfaces.toArray(new Class[interfaces.size()]), viewInvocationHandler);
     }
-
 
     /**
      * 代理 Presenter 层实例, 在 View 调用 Presenter 层接口时, 如果运行线程为 UI 线程, 则将方法调用转移到后台线程(默认为MvpPresenterThread)进行调用.
@@ -186,34 +180,45 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
             presenterClass = presenterClass.getSuperclass();
         }
         LshLog.v(TAG, "delegatedPresenter: new proxy instance for Interfaces: " + Arrays.toString(interfaces));
-        return (T) Proxy.newProxyInstance(originPresenter.getClass().getClassLoader(), interfaces, presenterInvocationHandler);
+        return (T) Proxy.newProxyInstance(originPresenter.getClass().getClassLoader(),
+                interfaces, presenterInvocationHandler);
     }
 
-    private class ViewInvocationHandler implements InvocationHandler {
+    /**
+     * DelegatedView 接口代理执行逻辑类
+     * <p>
+     * 逻辑: 将 DelegatedView 的方法交给 callAdapter 进行调度处理
+     */
+    private class DelegatedViewInvocationHandler implements InvocationHandler {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (!isViewAttached) {
-                LshLog.i(TAG, "try to invoke view method, but the view is not attached, ignore it.");
+            if (originView == null || proxy != delegatedView) {
+                LshLog.d(TAG, "try to invoke view method, but origin view is not attached, ignore it.");
                 return null;
             }
             LshLog.v(TAG, "delegatedView, view: " + originView.getClass().getSimpleName()
                     + ", method: " + method.getName() + ", thread: " + Thread.currentThread().getName());
-            return callAdapter.handleViewMethod(proxy, method, args);
+            return callAdapter.handleViewMethod(originView, method, args);
         }
     }
 
-    private class PresenterInvocationHandler implements InvocationHandler {
+    /**
+     * DelegatedPresenter 接口代理执行逻辑类
+     * <p>
+     * 逻辑: 将 DelegatedPresenter 的方法交给 callAdapter 进行调度处理
+     */
+    private class DelegatedPresenterInvocationHandler implements InvocationHandler {
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (!isViewAttached) {
-                LshLog.i(TAG, "try to invoke presenter method, but the view is not attached, ignore it.");
+            if (originPresenter == null || proxy != delegatedPresenter) {
+                LshLog.d(TAG, "try to invoke presenter method, but origin presenter is not attached, ignore it.");
                 return null;
             }
             LshLog.v(TAG, "delegatedPresenter: presenter=" + originPresenter.getClass().getSimpleName()
                     + ", method=" + method.getName() + ", thread: " + Thread.currentThread().getName());
-            return callAdapter.handlePresenterMethod(proxy, method, args);
+            return callAdapter.handlePresenterMethod(originPresenter, method, args);
         }
     }
 }

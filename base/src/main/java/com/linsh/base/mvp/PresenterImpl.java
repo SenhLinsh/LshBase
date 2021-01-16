@@ -8,13 +8,13 @@ package com.linsh.base.mvp;
  *    desc   :
  * </pre>
  */
-public abstract class PresenterImpl<V extends Contract.View> implements Contract.Presenter<V> {
+public abstract class PresenterImpl<V extends Contract.View> implements Contract.Presenter {
 
     private V mView;
 
     @Override
-    public void attachView(V view) {
-        mView = view;
+    public void attachView(Contract.View view) {
+        mView = (V) view;
         attachView();
     }
 

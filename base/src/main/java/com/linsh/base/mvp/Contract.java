@@ -12,13 +12,18 @@ import android.content.Context;
  */
 public interface Contract {
 
-    interface Presenter<V extends View> {
-        void attachView(V view);
+    interface Presenter {
+        void attachView(Contract.View view);
 
         void detachView();
     }
 
     interface View {
+
+        void attachPresenter(Contract.Presenter presenter);
+
+        void detachPresenter();
+
         Context getContext();
     }
 }

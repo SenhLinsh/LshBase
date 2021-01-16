@@ -100,14 +100,10 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
 
     abstract Object abstractInvokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable;
 
-    abstract Contract.Presenter getOriginPresenter();
-
-    abstract Contract.View getOriginView();
-
     @Override
     protected Object invokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            return method.invoke(getOriginPresenter(), args);
+            return method.invoke(proxy, args);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }
@@ -116,7 +112,7 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
     @Override
     public Object invokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            return method.invoke(getOriginView(), args);
+            return method.invoke(proxy, args);
         } catch (InvocationTargetException e) {
             throw e.getCause();
         }

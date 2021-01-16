@@ -22,13 +22,14 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
 
     private static final String TAG = "BaseMvpActivity";
     private MvpDelegate<P, Contract.View> mvpDelegate;
-    private HashMap<Class, MvpDelegate> minorMvpDelegates;
+    private P delegatedPresenter;
+    private HashMap<Class, MvpDelegate<P, Contract.View>> minorMvpDelegates;
 
     @Override
     public void onCreate() {
         super.onCreate();
         mvpDelegate = new MvpDelegate<>(initContractPresenter(), initContractView());
-        mvpDelegate.attachView();
+        mvpDelegate.attach();
         initMinorMvpDelegates();
     }
 
@@ -49,6 +50,10 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
         throw new RuntimeException("请通过 Intent 或注解设置 Presenter");
     }
 
+    protected Contract.View initContractView() {
+        return this;
+    }
+
     private void initMinorMvpDelegates() {
         // 通过注解设置 MinorPresenter
         MinorPresenter annotation = getClass().getAnnotation(MinorPresenter.class);
@@ -57,10 +62,10 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
                 minorMvpDelegates = new HashMap<>();
                 Class<? extends Contract.Presenter>[] presenters = annotation.value();
                 for (int i = 0; i < presenters.length; i += 2) {
-                    Contract.Presenter presenter = (Contract.Presenter) ClassUtils.newInstance(presenters[i + 1], true);
-                    MvpDelegate delegate = new MvpDelegate<>(presenter, this);
+                    P presenter = (P) ClassUtils.newInstance(presenters[i + 1], true);
+                    MvpDelegate<P, Contract.View> delegate = new MvpDelegate<>(presenter, (Contract.View) this);
                     minorMvpDelegates.put(presenters[i], delegate);
-                    delegate.attachView();
+                    delegate.attach();
                 }
                 LshLog.d(TAG, "initialize minor presenters from annotation: " + Arrays.toString(annotation.value()));
             } catch (Exception e) {
@@ -69,30 +74,48 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
         }
     }
 
-    protected Contract.View initContractView() {
+    protected void setContractPresenter(P presenter) {
+        mvpDelegate.setOriginPresenter(presenter);
+    }
+
+    protected void setContractView(Contract.View view) {
+        mvpDelegate.setOriginView(view);
+    }
+
+    @Override
+    public void attachPresenter(Contract.Presenter presenter) {
+        delegatedPresenter = (P) presenter;
+    }
+
+    @Override
+    public void detachPresenter() {
+    }
+
+    protected P getPresenter() {
+        return delegatedPresenter;
+    }
+
+    @Override
+    public Context getContext() {
         return this;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mvpDelegate.detachView();
+        mvpDelegate.detach();
         if (minorMvpDelegates != null) {
-            for (Map.Entry<Class, MvpDelegate> entry : minorMvpDelegates.entrySet()) {
-                entry.getValue().detachView();
+            for (Map.Entry<Class, MvpDelegate<P, Contract.View>> entry : minorMvpDelegates.entrySet()) {
+                entry.getValue().detach();
             }
         }
-    }
-
-    protected P getPresenter() {
-        return mvpDelegate.getPresenter();
     }
 
     protected <T extends Contract.Presenter> T getMinorPresenter(Class<T> classOfPresenter) {
         if (minorMvpDelegates == null) {
             throw new RuntimeException("请使用 @MinorPresenter 注解初始化 MinorPresenter, clazzOfPresenter: " + classOfPresenter);
         }
-        MvpDelegate mvpDelegate = minorMvpDelegates.get(classOfPresenter);
+        MvpDelegate<P, Contract.View> mvpDelegate = minorMvpDelegates.get(classOfPresenter);
         if (mvpDelegate == null) {
             throw new RuntimeException("无法找到该 presenter 的实例, 请确认是否已正确初始化. clazzOfPresenter: " + classOfPresenter);
         }
@@ -101,10 +124,5 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
 
     protected void addMvpCallAdapter(MvpCallAdapter callAdapter) {
         mvpDelegate.addCallAdapter(callAdapter);
-    }
-
-    @Override
-    public Context getContext() {
-        return this;
     }
 }
