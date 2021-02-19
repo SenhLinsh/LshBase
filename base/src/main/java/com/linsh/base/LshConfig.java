@@ -17,6 +17,7 @@ import com.linsh.utilseverywhere.AppUtils;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.DeviceUtils;
 import com.linsh.utilseverywhere.ExceptionUtils;
+import com.linsh.utilseverywhere.FileIOUtils;
 import com.linsh.utilseverywhere.FileUtils;
 import com.linsh.utilseverywhere.ResourceUtils;
 
@@ -100,7 +101,12 @@ public class LshConfig {
         JsonObject jsonObject = null;
         // 1. 读取 sdcard 配置
         File configFile = getConfigFile(configClass);
-        String json = FileUtils.readAsString(configFile);
+        String json = null;
+        try {
+            json = FileIOUtils.readAsString(configFile);
+        } catch (Exception e) {
+            Log.w(BuildConfig.TAG, "读取配置文件失败", e);
+        }
         if (json != null) {
             try {
                 jsonObject = gson.fromJson(json, JsonObject.class);
