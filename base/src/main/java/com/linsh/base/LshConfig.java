@@ -66,8 +66,9 @@ import java.util.Map;
  */
 public class LshConfig {
 
-    private static final String config_dir_path_from_text = Environment.getExternalStorageDirectory() + "/linsh/text/Develop/linsh/config/";
-    private static final String public_config_dir_path_from_text = Environment.getExternalStorageDirectory()
+    private static final String config_dir_path_from_text = Environment.getExternalStorageDirectory().getPath()
+            + "/linsh/text/Develop/linsh/config/";
+    private static final String public_config_dir_path_from_text = Environment.getExternalStorageDirectory().getPath()
             + "/linsh/text/Develop/linsh/config/com.linsh.base/";
 
     private static final Map<Class<? extends Config>, Config> defaultConfigs = new HashMap<>();
@@ -102,10 +103,12 @@ public class LshConfig {
         // 1. 读取 sdcard 配置
         File configFile = getConfigFile(configClass);
         String json = null;
-        try {
-            json = FileIOUtils.readAsString(configFile);
-        } catch (Exception e) {
-            Log.w(BuildConfig.TAG, "读取配置文件失败", e);
+        if (configFile != null) {
+            try {
+                json = FileIOUtils.readAsString(configFile);
+            } catch (Exception e) {
+                Log.w(BuildConfig.TAG, "读取配置文件失败", e);
+            }
         }
         if (json != null) {
             try {
@@ -148,6 +151,7 @@ public class LshConfig {
     public static File getConfigFile(Class<? extends Config> configClass) {
         File dir = new File(config_dir_path_from_text, ContextUtils.getPackageName());
         if (!dir.exists()) {
+            Log.w(BuildConfig.TAG, "config dir does not exist");
             return null;
         }
         String name = configClass.getSimpleName();
@@ -198,6 +202,7 @@ public class LshConfig {
     public static File getPublicConfigFile(Class<? extends PublicConfig> configClass) {
         File dir = new File(public_config_dir_path_from_text, ContextUtils.getPackageName());
         if (!dir.exists()) {
+            Log.i(BuildConfig.TAG, "public config dir does not exist");
             return null;
         }
         String name = configClass.getSimpleName();
