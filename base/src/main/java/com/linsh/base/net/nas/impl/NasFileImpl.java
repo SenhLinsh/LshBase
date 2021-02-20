@@ -20,6 +20,10 @@ class NasFileImpl implements NasFile {
         this.file = file;
     }
 
+    public SmbFile getFile() {
+        return file;
+    }
+
     @Override
     public String getParent() {
         return file.getParent();

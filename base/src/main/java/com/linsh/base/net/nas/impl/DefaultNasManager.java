@@ -41,10 +41,20 @@ public class DefaultNasManager implements NasManager {
     }
 
     @Override
+    public NasFile file(NasFile parent, String name) throws Exception {
+        return new NasFileImpl(buildSmbFile(parent, name));
+    }
+
+    @Override
     public String[] list(String path) throws Exception {
         if (!path.endsWith("/"))
             path += "/";
         return buildSmbFile(path).list();
+    }
+
+    @Override
+    public String[] list(NasFile nasFile) throws Exception {
+        return buildSmbFile(nasFile).list();
     }
 
     @Override
@@ -53,13 +63,29 @@ public class DefaultNasManager implements NasManager {
     }
 
     @Override
+    public void mkdir(NasFile nasFile) throws Exception {
+        buildSmbFile(nasFile).mkdir();
+    }
+
+    @Override
     public InputStream pull(String path) throws Exception {
         return buildSmbFile(path).getInputStream();
     }
 
     @Override
+    public InputStream pull(NasFile nasFile) throws Exception {
+        return buildSmbFile(nasFile).getInputStream();
+    }
+
+    @Override
     public String read(String path) throws Exception {
         InputStream inputStream = pull(path);
+        return StreamUtils.readAsString(inputStream);
+    }
+
+    @Override
+    public String read(NasFile nasFile) throws Exception {
+        InputStream inputStream = pull(nasFile);
         return StreamUtils.readAsString(inputStream);
     }
 
@@ -70,14 +96,32 @@ public class DefaultNasManager implements NasManager {
     }
 
     @Override
+    public void download(NasFile nasFile, File dest) throws Exception {
+        InputStream inputStream = pull(nasFile);
+        StreamUtils.write(inputStream, dest);
+    }
+
+    @Override
     public void push(String path, InputStream in) throws Exception {
         OutputStream outputStream = buildSmbFile(path).getOutputStream();
         StreamUtils.write(in, outputStream);
     }
 
     @Override
+    public void push(NasFile nasFile, InputStream in) throws Exception {
+        OutputStream outputStream = buildSmbFile(nasFile).getOutputStream();
+        StreamUtils.write(in, outputStream);
+    }
+
+    @Override
     public void write(String path, String content) throws Exception {
         OutputStream outputStream = buildSmbFile(path).getOutputStream();
+        outputStream.write(content.getBytes());
+    }
+
+    @Override
+    public void write(NasFile nasFile, String content) throws Exception {
+        OutputStream outputStream = buildSmbFile(nasFile).getOutputStream();
         outputStream.write(content.getBytes());
     }
 
@@ -89,13 +133,30 @@ public class DefaultNasManager implements NasManager {
     }
 
     @Override
+    public void upload(NasFile nasFile, File src) throws Exception {
+        OutputStream outputStream = buildSmbFile(nasFile).getOutputStream();
+        FileInputStream inputStream = new FileInputStream(src);
+        StreamUtils.write(inputStream, outputStream);
+    }
+
+    @Override
     public void delete(String path) throws Exception {
         buildSmbFile(path).delete();
     }
 
     @Override
+    public void delete(NasFile nasFile) throws Exception {
+        buildSmbFile(nasFile).delete();
+    }
+
+    @Override
     public void move(String srcPath, String destPath) throws Exception {
         buildSmbFile(srcPath).renameTo(buildSmbFile(destPath));
+    }
+
+    @Override
+    public void move(NasFile nasFile, String destPath) throws Exception {
+        buildSmbFile(nasFile).renameTo(buildSmbFile(destPath));
     }
 
     private SmbFile buildSmbFile(String path) throws Exception {
@@ -104,6 +165,14 @@ public class DefaultNasManager implements NasManager {
             return new SmbFile("smb://" + ip + "/" + dir + "/" + path, auth);
         }
         return new SmbFile("smb://" + ip + "/" + dir + "/" + path);
+    }
+
+    private SmbFile buildSmbFile(NasFile nasFile) throws Exception {
+        return ((NasFileImpl) nasFile).getFile();
+    }
+
+    private SmbFile buildSmbFile(NasFile parent, String name) throws Exception {
+        return new SmbFile(((NasFileImpl) parent).getFile(), name);
     }
 
     public static class Builder implements NasManager.Builder {

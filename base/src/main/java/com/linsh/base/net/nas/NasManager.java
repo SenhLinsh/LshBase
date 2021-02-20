@@ -21,11 +21,26 @@ public interface NasManager {
     NasFile file(String path) throws Exception;
 
     /**
+     * 构建 NasFile 对象
+     *
+     * @param parent 父文件夹
+     * @param name   文件名
+     */
+    NasFile file(NasFile parent, String name) throws Exception;
+
+    /**
      * 列出指定文件夹下的文件
      *
      * @param path 文件夹路径
      */
     String[] list(String path) throws Exception;
+
+    /**
+     * 列出指定文件夹下的文件
+     *
+     * @param nasFile 文件
+     */
+    String[] list(NasFile nasFile) throws Exception;
 
     /**
      * 创建文件夹
@@ -35,11 +50,25 @@ public interface NasManager {
     void mkdir(String path) throws Exception;
 
     /**
+     * 创建文件夹
+     *
+     * @param nasFile 文件
+     */
+    void mkdir(NasFile nasFile) throws Exception;
+
+    /**
      * 拉流
      *
      * @param path 文件路径
      */
     InputStream pull(String path) throws Exception;
+
+    /**
+     * 拉流
+     *
+     * @param nasFile 文件
+     */
+    InputStream pull(NasFile nasFile) throws Exception;
 
     /**
      * 读取文本
@@ -49,6 +78,13 @@ public interface NasManager {
     String read(String path) throws Exception;
 
     /**
+     * 读取文本
+     *
+     * @param nasFile 文件
+     */
+    String read(NasFile nasFile) throws Exception;
+
+    /**
      * 下载文件
      *
      * @param path 源文件路径
@@ -56,6 +92,13 @@ public interface NasManager {
      */
     void download(String path, File dest) throws Exception;
 
+    /**
+     * 下载文件
+     *
+     * @param nasFile 文件
+     * @param dest    目标文件
+     */
+    void download(NasFile nasFile, File dest) throws Exception;
 
     /**
      * 推流
@@ -65,6 +108,13 @@ public interface NasManager {
      */
     void push(String path, InputStream in) throws Exception;
 
+    /**
+     * 推流
+     *
+     * @param nasFile 文件
+     * @param in      流
+     */
+    void push(NasFile nasFile, InputStream in) throws Exception;
 
     /**
      * 写入文本
@@ -75,12 +125,28 @@ public interface NasManager {
     void write(String path, String content) throws Exception;
 
     /**
+     * 写入文本
+     *
+     * @param nasFile 文件
+     * @param content 文本内容
+     */
+    void write(NasFile nasFile, String content) throws Exception;
+
+    /**
      * 上传文件
      *
      * @param path 目标路径
      * @param src  源文件路径
      */
     void upload(String path, File src) throws Exception;
+
+    /**
+     * 上传文件
+     *
+     * @param nasFile 目标文件
+     * @param src     源文件路径
+     */
+    void upload(NasFile nasFile, File src) throws Exception;
 
     /**
      * 删除文件
@@ -90,12 +156,27 @@ public interface NasManager {
     void delete(String path) throws Exception;
 
     /**
+     * 删除文件
+     *
+     * @param nasFile 目标文件
+     */
+    void delete(NasFile nasFile) throws Exception;
+
+    /**
      * 移动文件
      *
      * @param srcPath  源文件路径
      * @param destPath 目标路径
      */
     void move(String srcPath, String destPath) throws Exception;
+
+    /**
+     * 移动文件
+     *
+     * @param nasFile  源文件
+     * @param destPath 目标路径
+     */
+    void move(NasFile nasFile, String destPath) throws Exception;
 
 
     interface Builder {
