@@ -16,9 +16,7 @@ import com.linsh.lshutils.utils.DebugUtilsEx;
 import com.linsh.utilseverywhere.AppUtils;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.DeviceUtils;
-import com.linsh.utilseverywhere.ExceptionUtils;
 import com.linsh.utilseverywhere.FileIOUtils;
-import com.linsh.utilseverywhere.FileUtils;
 import com.linsh.utilseverywhere.ResourceUtils;
 
 import java.io.File;
@@ -169,7 +167,11 @@ public class LshConfig {
         if (file.exists()) {
             return file;
         }
-        return new File(dir, name);
+        file = new File(dir, name);
+        if (file.exists()) {
+            return file;
+        }
+        return null;
     }
 
     /**
@@ -181,17 +183,37 @@ public class LshConfig {
         Gson gson = new Gson();
         String filename = configClass.getSimpleName();
         // 最后读 sdcard 的
-        File file = getPublicConfigFile(configClass);
-        if (!file.exists()) {
-            ResourceUtils.copyAssetsFileToStorage("config/public/" + configClass.getSimpleName(), file);
+        File configFile = getPublicConfigFile(configClass);
+        String json = null;
+        if (configFile != null) {
+            try {
+                json = FileIOUtils.readAsString(configFile);
+            } catch (Exception e) {
+                Log.w(BuildConfig.TAG, "读取配置文件失败", e);
+            }
         }
-        String json = FileUtils.readAsString(file);
-        if (json == null) {
-            throw new RuntimeException("无法获取公共配置参数, 请检查是否已根据规范进行配置.");
+        if (json != null) {
+            try {
+                return gson.fromJson(json, configClass);
+            } catch (Exception e) {
+                Log.e(BuildConfig.TAG, "sdcard 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
+            }
         }
-        T t = gson.fromJson(json, configClass);
-        ExceptionUtils.checkNotNull(t, filename + " 解析失败, 请检查配置内容");
-        return t;
+        // 2. 读取 DefaultConfig
+        Config config = defaultConfigs.get(configClass);
+        if (config != null) {
+            return (T) config;
+        }
+        // 2.1 asset/config
+        json = ResourceUtils.getTextFromAssets("config/" + filename);
+        if (json != null) {
+            try {
+                return gson.fromJson(json, configClass);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("assets 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
+            }
+        }
+        throw new RuntimeException("无法获取公共配置文件 <" + filename + ">, 请根据实际情况进行配置");
     }
 
     /**
@@ -220,7 +242,11 @@ public class LshConfig {
         if (file.exists()) {
             return file;
         }
-        return new File(dir, name);
+        file = new File(dir, name);
+        if (file.exists()) {
+            return file;
+        }
+        return null;
     }
 
     /**
