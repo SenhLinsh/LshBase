@@ -6,9 +6,8 @@ import android.content.Context;
 import com.linsh.base.LshLog;
 import com.linsh.utilseverywhere.ClassUtils;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 /**
  * <pre>
@@ -23,7 +22,7 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
     private static final String TAG = "BaseMvpActivity";
     private MvpDelegate<P, Contract.View> mvpDelegate;
     private P delegatedPresenter;
-    private HashMap<Class, MvpDelegate<P, Contract.View>> minorMvpDelegates;
+    private ArrayList<MvpDelegate<Contract.Presenter, Contract.View>> minorMvpDelegates;
 
     @Override
     public void onCreate() {
@@ -56,28 +55,41 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
 
     private void initMinorMvpDelegates() {
         // 通过注解设置 MinorPresenter
-        MinorPresenter annotation = getClass().getAnnotation(MinorPresenter.class);
-        if (annotation != null) {
-            try {
-                minorMvpDelegates = new HashMap<>();
-                Class<? extends Contract.Presenter>[] presenters = annotation.value();
-                for (int i = 0; i < presenters.length; i += 2) {
-                    P presenter = (P) ClassUtils.newInstance(presenters[i + 1], true);
-                    MvpDelegate<P, Contract.View> delegate = new MvpDelegate<>(presenter, (Contract.View) this);
-                    minorMvpDelegates.put(presenters[i], delegate);
-                    delegate.attach();
+        Field[] fields = getClass().getDeclaredFields();
+        for (Field field : fields) {
+            Presenter annotation = field.getAnnotation(Presenter.class);
+            if (annotation != null) {
+                try {
+                    Class<? extends Contract.Presenter> value = annotation.value();
+                    Contract.Presenter presenter = (P) ClassUtils.newInstance(value, true);
+                    MvpDelegate<Contract.Presenter, Contract.View> mvpDelegate = new MvpDelegate<>(presenter, (Contract.View) this);
+                    ClassUtils.setField(this, field.getName(), mvpDelegate.getPresenter(), true);
+                    if (minorMvpDelegates == null) {
+                        minorMvpDelegates = new ArrayList<>();
+                    }
+                    minorMvpDelegates.add(mvpDelegate);
+                    LshLog.d(TAG, "initialize presenter from field annotation: " + annotation.value());
+                } catch (Exception e) {
+                    throw new RuntimeException("initialize presenter from field annotation failed: " + annotation.value(), e);
                 }
-                LshLog.d(TAG, "initialize minor presenters from annotation: " + Arrays.toString(annotation.value()));
-            } catch (Exception e) {
-                throw new RuntimeException("initialize minor presenters from annotation failed: " + Arrays.toString(annotation.value()), e);
             }
         }
     }
 
+    /**
+     * 设置 Main Presenter, 将替换原有的 Main Presenter
+     *
+     * @param presenter Contract.Presenter 对象
+     */
     protected void setContractPresenter(P presenter) {
         mvpDelegate.setOriginPresenter(presenter);
     }
 
+    /**
+     * 设置 Main View, 将替换原有的 Main View
+     *
+     * @param view Contract.View 对象
+     */
     protected void setContractView(Contract.View view) {
         mvpDelegate.setOriginView(view);
     }
@@ -105,24 +117,19 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
         super.onDestroy();
         mvpDelegate.detach();
         if (minorMvpDelegates != null) {
-            for (Map.Entry<Class, MvpDelegate<P, Contract.View>> entry : minorMvpDelegates.entrySet()) {
-                entry.getValue().detach();
+            for (MvpDelegate<Contract.Presenter, Contract.View> minorMvpDelegate : minorMvpDelegates) {
+                minorMvpDelegate.detach();
             }
+            minorMvpDelegates = null;
         }
-    }
-
-    protected <T extends Contract.Presenter> T getMinorPresenter(Class<T> classOfPresenter) {
-        if (minorMvpDelegates == null) {
-            throw new RuntimeException("请使用 @MinorPresenter 注解初始化 MinorPresenter, clazzOfPresenter: " + classOfPresenter);
-        }
-        MvpDelegate<P, Contract.View> mvpDelegate = minorMvpDelegates.get(classOfPresenter);
-        if (mvpDelegate == null) {
-            throw new RuntimeException("无法找到该 presenter 的实例, 请确认是否已正确初始化. clazzOfPresenter: " + classOfPresenter);
-        }
-        return (T) mvpDelegate.getPresenter();
     }
 
     protected void addMvpCallAdapter(MvpCallAdapter callAdapter) {
         mvpDelegate.addCallAdapter(callAdapter);
+        if (minorMvpDelegates != null) {
+            for (MvpDelegate<Contract.Presenter, Contract.View> minorMvpDelegate : minorMvpDelegates) {
+                minorMvpDelegate.addCallAdapter(callAdapter);
+            }
+        }
     }
 }
