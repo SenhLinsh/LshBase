@@ -25,7 +25,6 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
 
     private static final String TAG = "BaseMvpActivity";
     private MvpDelegate<P, Contract.View> mvpDelegate;
-    private P delegatedPresenter;
     private ArrayList<MvpDelegate<Contract.Presenter, Contract.View>> minorMvpDelegates;
 
     @Override
@@ -120,7 +119,6 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
 
     @Override
     public void attachPresenter(Contract.Presenter presenter) {
-        delegatedPresenter = (P) presenter;
     }
 
     @Override
@@ -128,7 +126,7 @@ public abstract class BaseMvpActivity<P extends Contract.Presenter> extends Base
     }
 
     protected P getPresenter() {
-        return delegatedPresenter;
+        return mvpDelegate.getPresenter();
     }
 
     @Override
