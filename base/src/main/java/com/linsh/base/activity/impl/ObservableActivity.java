@@ -15,6 +15,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.linsh.base.LshActivity;
 import com.linsh.base.LshLog;
 import com.linsh.base.activity.ActivitySubscribe;
@@ -26,10 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * <pre>
@@ -69,21 +69,21 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
      * <p>
      * Map 中的 key 为订阅事件接口, value 为该事件的所有订阅者
      */
-    private HashMap<Class, Set<ActivitySubscribe>> mSubscribers;
+    private HashMap<Class<?>, Set<ActivitySubscribe>> mSubscribers;
 
     /**
      * 对于传入 Class 字节码类型的订阅者, 将只保留一个实例, 其他地方需要使用, 会对其进行复用
      * <p>
      * Map 中的 key 为订阅者 Class, value 为 Class 类型传入后自动实例化的所有订阅者
      */
-    private HashMap<Class, ActivitySubscribe> mSingleInstanceSubscribers;
+    private HashMap<Class<?>, ActivitySubscribe> mSingleInstanceSubscribers;
 
     /**
      * 静态缓存已经使用了的订阅者所匹配的事件, 下次再使用时可省略查找订阅事件的步骤.
      * <p>
      * Map 中的 key 为订阅者的 Class, value 该订阅者所有的订阅事件接口列表
      */
-    private static HashMap<Class, List<Class<? extends ActivitySubscribe>>> sCachedSubscriberClasses = new HashMap<>();
+    private static final HashMap<Class<?>, List<Class<? extends ActivitySubscribe>>> sCachedSubscriberClasses = new HashMap<>();
 
     /**
      * 注册订阅者
@@ -147,7 +147,7 @@ abstract class ObservableActivity extends AppCompatActivity implements IObservab
             return subscriber;
         }
         // 没有该订阅者的订阅事件接口缓存, 开始查找并缓存
-        Class clazz = subscriber.getClass();
+        Class<?> clazz = subscriber.getClass();
         cache = new LinkedList<>();
         while (clazz != null) {
             Class<?>[] interfaces = clazz.getInterfaces();

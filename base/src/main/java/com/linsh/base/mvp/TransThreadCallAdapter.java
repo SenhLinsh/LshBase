@@ -9,7 +9,6 @@ import com.linsh.base.LshThread;
 import com.linsh.base.thread.ThreadPolicy;
 import com.linsh.utilseverywhere.ThreadUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -99,24 +98,6 @@ abstract class TransThreadCallAdapter extends MvpCallAdapter {
     abstract Object abstractInvokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable;
 
     abstract Object abstractInvokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable;
-
-    @Override
-    protected Object invokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable {
-        try {
-            return method.invoke(proxy, args);
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
-
-    @Override
-    public Object invokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
-        try {
-            return method.invoke(proxy, args);
-        } catch (InvocationTargetException e) {
-            throw e.getCause();
-        }
-    }
 
     private void throwException(Throwable cause) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

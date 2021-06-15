@@ -1,9 +1,13 @@
 package com.linsh.base.mvp;
 
+import android.content.Context;
+
 import com.linsh.base.LshLog;
+import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.ListUtils;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
@@ -46,14 +50,49 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
         this.delegatedView = delegateView();
         // 定义 callAdapter 最顶层的 parent
         this.callAdapter = new TransThreadCallAdapter() {
+
             @Override
             Object abstractInvokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable {
+                // 交给最外层的 callAdapter 进行推进
                 return callAdapter.invokePresenterMethod(proxy, method, args);
             }
 
             @Override
             Object abstractInvokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
+                // 交给最外层的 callAdapter 进行推进
                 return callAdapter.invokeViewMethod(proxy, method, args);
+            }
+
+            @Override
+            protected Object invokePresenterMethod(Object proxy, Method method, Object[] args) throws Throwable {
+                if ((originPresenter == null || proxy != originPresenter) && !method.getName().equals("detachView")) {
+                    LshLog.d(TAG, "try to invoke presenter method: " + method.getName() + "(), but origin presenter is not attached, ignore it.");
+                    return null;
+                }
+                // 最终执行方法调用
+                try {
+                    return method.invoke(proxy, args);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
+            }
+
+            @Override
+            public Object invokeViewMethod(Object proxy, Method method, Object[] args) throws Throwable {
+                if ((originView == null || proxy != originView) && !method.getName().equals("detachPresenter")) {
+                    // View detach 后, getContext() 方法仍可返回 App Context
+                    if (method.getName().equals("getContext") && method.getReturnType() == Context.class) {
+                        return ContextUtils.get();
+                    }
+                    LshLog.d(TAG, "try to invoke view method: " + method.getName() + "(), but origin view is not attached, ignore it.");
+                    return null;
+                }
+                // 最终执行方法调用
+                try {
+                    return method.invoke(proxy, args);
+                } catch (InvocationTargetException e) {
+                    throw e.getCause();
+                }
             }
         };
     }
@@ -143,7 +182,7 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
      * 注意: 如果方法存在返回值, 将不会自动切换线程, 而是继续在当前的线程进行调用.
      */
     private <T extends Contract.View> T delegateView() {
-        Set<Class> interfaces = new HashSet<>();
+        Set<Class<?>> interfaces = new HashSet<>();
         Class<?> viewClass = originView.getClass();
         while (viewClass != null) {
             Class<?>[] curInterfaces = viewClass.getInterfaces();
@@ -165,7 +204,7 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
      * 注意: 如果方法存在返回值, 将不会自动切换线程, 而是继续在当前的线程进行调用.
      */
     private <T extends Contract.Presenter> T delegatePresenter() {
-        Class[] interfaces = new Class[1];
+        Class<?>[] interfaces = new Class[1];
         Class<?> presenterClass = originPresenter.getClass();
         out:
         while (presenterClass != null) {
@@ -194,7 +233,11 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (originView == null || proxy != delegatedView) {
-                LshLog.d(TAG, "try to invoke view method, but origin view is not attached, ignore it.");
+                // View detach 后, getContext() 方法仍可返回 App Context
+                if (method.getName().equals("getContext") && method.getReturnType() == Context.class) {
+                    return ContextUtils.get();
+                }
+                LshLog.d(TAG, "try to delegate view method: " + method.getName() + "(), but origin view is not attached, ignore it.");
                 return null;
             }
             LshLog.v(TAG, "delegatedView, view: " + originView.getClass().getSimpleName()
@@ -213,7 +256,7 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             if (originPresenter == null || proxy != delegatedPresenter) {
-                LshLog.d(TAG, "try to invoke presenter method, but origin presenter is not attached, ignore it.");
+                LshLog.d(TAG, "try to delegate presenter method: " + method.getName() + "(), but origin presenter is not attached, ignore it.");
                 return null;
             }
             LshLog.v(TAG, "delegatedPresenter: presenter=" + originPresenter.getClass().getSimpleName()

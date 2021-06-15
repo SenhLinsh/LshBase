@@ -95,10 +95,12 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
 
     @Override
     public void attachPresenter(Contract.Presenter presenter) {
+        LshLog.v(TAG, "attachPresenter: " + presenter);
     }
 
     @Override
     public void detachPresenter() {
+        LshLog.v(TAG, "detachPresenter");
     }
 
     protected P getPresenter() {
