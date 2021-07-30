@@ -60,7 +60,7 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
             if (annotation != null) {
                 try {
                     Class<? extends Contract.Presenter> value = annotation.value();
-                    Contract.Presenter presenter = (P) ClassUtils.newInstance(value, true);
+                    Contract.Presenter presenter = (Contract.Presenter) ClassUtils.newInstance(value, true);
                     MvpDelegate<Contract.Presenter, Contract.View> mvpDelegate = new MvpDelegate<>(presenter, (Contract.View) this);
                     ClassUtils.setField(this, field.getName(), mvpDelegate.getPresenter(), true);
                     if (minorMvpDelegates == null) {
