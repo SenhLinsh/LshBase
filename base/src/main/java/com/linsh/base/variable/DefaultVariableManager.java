@@ -26,7 +26,7 @@ public class DefaultVariableManager implements IVariableManager {
     @Override
     public <T> T get(Class<T> classOfT) {
         Object value = variables.get(classOfT.getName());
-        if (value != null && value.getClass() == classOfT) {
+        if (value != null && classOfT.isAssignableFrom(value.getClass())) {
             return (T) value;
         }
         return null;
