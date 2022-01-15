@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
 public class LshFileManager implements FileManager {
 
     private final FileConfig config;
-    private final static String APP_PARENT_FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/linsh";
+    private final static String APP_PARENT_FILE_PATH = Environment.getExternalStorageDirectory().getAbsolutePath() + "/.linsh";
 
     public LshFileManager(FileConfig config) {
         this.config = config;
