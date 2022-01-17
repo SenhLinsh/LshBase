@@ -20,6 +20,8 @@ public interface FileManager {
 
     FileBuilder sd(String filename);
 
+    FileBuilder linsh(String filename);
+
     FileBuilder app(String filename);
 
     FileBuilder data(String filename);

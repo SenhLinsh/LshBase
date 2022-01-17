@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.os.Build;
 import android.os.Environment;
 
+import androidx.annotation.NonNull;
+
 import com.linsh.base.LshActivity;
 import com.linsh.base.activity.ActivitySubscribe;
-import com.linsh.base.file.FileBuilder;
 import com.linsh.base.config.FileConfig;
+import com.linsh.base.file.FileBuilder;
 import com.linsh.base.file.FileManager;
 import com.linsh.base.file.PermissionCallback;
 import com.linsh.lshutils.utils.IdUtilsEx;
@@ -15,8 +17,6 @@ import com.linsh.utilseverywhere.SDCardUtils;
 import com.linsh.utilseverywhere.UEPermission;
 
 import java.io.File;
-
-import androidx.annotation.NonNull;
 
 /**
  * <pre>
@@ -50,6 +50,12 @@ public class LshFileManager implements FileManager {
         File root = SDCardUtils.getRootDirectory();
         return new FileBuilderImpl(FileBuilderImpl.TYPE_PATH,
                 (root != null ? root.getAbsolutePath() : "sdcard/") + filename);
+    }
+
+    @Override
+    public FileBuilder linsh(String filename) {
+        return new FileBuilderImpl(FileBuilderImpl.TYPE_PATH,
+                APP_PARENT_FILE_PATH + "/" + filename);
     }
 
     @Override

@@ -48,6 +48,10 @@ public class LshFile {
         return manager.app(filename);
     }
 
+    public static FileBuilder linsh(String filename) {
+        return manager.linsh(filename);
+    }
+
     public static FileBuilder dataForText(String filename) {
         return manager.file(new File(APP_DIR_IN_TEXT, filename));
     }
