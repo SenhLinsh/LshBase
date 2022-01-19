@@ -19,9 +19,9 @@ public class ContactAppManagerImpl implements IContactAppManager {
 
     @Override
     public void gotoSearch(Activity activity, int requestCode) {
-        Intent intent = new Intent(ACTION_SEARCH)
-                .putExtra(EXTRA_SEARCH_TYPE, EXTRA_SEARCH_TYPE_PERSON)
-                .setPackage(PACKAGE_NAME);
+        Intent intent = new Intent()
+                .setClassName(PACKAGE_NAME, ACTIVITY_NAME_SEARCH)
+                .putExtra(EXTRA_SEARCH_TYPE, EXTRA_SEARCH_TYPE_PERSON);
         if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
             activity.startActivityForResult(intent, requestCode);
         } else {

@@ -13,7 +13,7 @@ import android.app.Activity;
 public interface IContactAppManager {
 
     String PACKAGE_NAME = "com.linsh.contact";
-    String ACTION_SEARCH = "com.linsh.action.SEARCH";
+    String ACTIVITY_NAME_SEARCH = "com.linsh.contact.page.search.SearchActivity";
     String EXTRA_SEARCH_TYPE = "type";
     String EXTRA_SEARCH_TYPE_PERSON = "person";
     String RESULT_GROUP_NAME = "group.name";
