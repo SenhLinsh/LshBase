@@ -1,8 +1,9 @@
 package com.linsh.base;
 
-import com.linsh.base.app.IAppManager;
+import com.linsh.base.app.IContactAppManager;
 import com.linsh.base.app.ITextAppManager;
-import com.linsh.base.app.impl.DefaultAppManager;
+import com.linsh.base.app.impl.ContactAppManagerImpl;
+import com.linsh.base.app.impl.DefaultTextAppManager;
 
 /**
  * <pre>
@@ -14,9 +15,11 @@ import com.linsh.base.app.impl.DefaultAppManager;
  */
 public class LshApp {
 
-    private static final IAppManager APP_MANAGER = new DefaultAppManager();
-
     public static ITextAppManager text() {
-        return APP_MANAGER.text();
+        return new DefaultTextAppManager();
+    }
+
+    public static IContactAppManager contact() {
+        return new ContactAppManagerImpl();
     }
 }

@@ -19,9 +19,6 @@ import com.linsh.utilseverywhere.ToastUtils;
  */
 public class DefaultTextAppManager implements ITextAppManager {
 
-    private static final String PACKAGE_NAME = "com.linsh.text";
-    private static final String ACTIVITY_NAME_TEXT_EDIT = "com.linsh.text.page.text.TextEditActivity";
-
     @Override
     public void launch() {
         Intent intent = IntentUtils.getLaunchAppIntent(PACKAGE_NAME);
