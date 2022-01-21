@@ -10,7 +10,7 @@ import android.app.Activity;
  *    desc   : 友人帐应用接口
  * </pre>
  */
-public interface IContactAppManager {
+public interface IContactAppApi {
 
     String PACKAGE_NAME = "com.linsh.contact";
     String ACTIVITY_NAME_SEARCH = "com.linsh.contact.page.search.SearchActivity";

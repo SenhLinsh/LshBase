@@ -11,7 +11,7 @@ import android.content.Context;
  *    desc   : 字字珠玑应用接口
  * </pre>
  */
-public interface ITextAppManager {
+public interface ITextAppApi {
 
     String PACKAGE_NAME = "com.linsh.text";
     String ACTIVITY_NAME_TEXT_EDIT = "com.linsh.text.page.text.TextEditActivity";

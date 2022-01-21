@@ -3,7 +3,7 @@ package com.linsh.base.app.impl;
 import android.app.Activity;
 import android.content.Intent;
 
-import com.linsh.base.app.IContactAppManager;
+import com.linsh.base.app.IContactAppApi;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.ToastUtils;
 
@@ -15,7 +15,7 @@ import com.linsh.utilseverywhere.ToastUtils;
  *    desc   :
  * </pre>
  */
-public class ContactAppManagerImpl implements IContactAppManager {
+public class ContactAppApiImpl implements IContactAppApi {
 
     @Override
     public void gotoSearch(Activity activity, int requestCode) {

@@ -1,9 +1,11 @@
 package com.linsh.base;
 
-import com.linsh.base.app.IContactAppManager;
-import com.linsh.base.app.ITextAppManager;
-import com.linsh.base.app.impl.ContactAppManagerImpl;
-import com.linsh.base.app.impl.DefaultTextAppManager;
+import com.linsh.base.app.IContactAppApi;
+import com.linsh.base.app.IPhotographyAppApi;
+import com.linsh.base.app.ITextAppApi;
+import com.linsh.base.app.impl.ContactAppApiImpl;
+import com.linsh.base.app.impl.DefaultTextAppApi;
+import com.linsh.base.app.impl.PhotographyAppApiImpl;
 
 /**
  * <pre>
@@ -15,11 +17,24 @@ import com.linsh.base.app.impl.DefaultTextAppManager;
  */
 public class LshApp {
 
-    public static ITextAppManager text() {
-        return new DefaultTextAppManager();
+    /**
+     * 字字珠玑应用接口
+     */
+    public static ITextAppApi text() {
+        return new DefaultTextAppApi();
     }
 
-    public static IContactAppManager contact() {
-        return new ContactAppManagerImpl();
+    /**
+     * 友人帐应用接口
+     */
+    public static IContactAppApi contact() {
+        return new ContactAppApiImpl();
+    }
+
+    /**
+     * 朝花夕逝应用接口
+     */
+    public static IPhotographyAppApi photography() {
+        return new PhotographyAppApiImpl();
     }
 }
