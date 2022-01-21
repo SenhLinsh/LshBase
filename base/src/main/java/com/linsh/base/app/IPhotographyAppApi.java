@@ -19,6 +19,8 @@ public interface IPhotographyAppApi {
     String EXTRA_TYPE = "type";
     int EXTRA_TYPE_DEFAULT = 0;
     int EXTRA_TYPE_SELECTOR = 1;
+    String RESULT_PATH = "path";
+    String RESULT_MD5 = "md5";
     String QUERY_TYPE_DESC = "内容";
     String QUERY_TYPE_PERSON = "友人帐";
     String QUERY_TYPE_TAG = "标签";
