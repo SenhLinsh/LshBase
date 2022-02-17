@@ -13,6 +13,9 @@ import android.app.Activity;
 public interface IContactAppApi {
 
     String PACKAGE_NAME = "com.linsh.contact";
+    String APP_NAME = "友人帐";
+    String APP_NAME_EN = "contact";
+
     String ACTIVITY_NAME_SEARCH = "com.linsh.contact.page.search.SearchActivity";
     String EXTRA_SEARCH_TYPE = "type";
     String EXTRA_SEARCH_TYPE_PERSON = "person";

@@ -14,6 +14,12 @@ import android.content.Context;
 public interface ITextAppApi {
 
     String PACKAGE_NAME = "com.linsh.text";
+    String APP_NAME = "字字珠玑";
+    String APP_NAME_EN = "text";
+
+    String PATH_GIT = "/sdcard/.linsh/text/";
+    String PATH_GIT_APP = PATH_GIT + "Develop/linsh/app/";
+
     String ACTIVITY_NAME_TEXT_EDIT = "com.linsh.text.page.text.TextEditActivity";
     String EXTRA_TEXT_EDIT_PATH = "path";
     String EXTRA_TEXT_EDIT_TEXT = "text";

@@ -13,6 +13,9 @@ import android.app.Activity;
 public interface IPhotographyAppApi {
 
     String PACKAGE_NAME = "com.linsh.photography";
+    String APP_NAME = "朝花夕逝";
+    String APP_NAME_EN = "photography";
+
     String ACTIVITY_NAME_MAIN = "com.linsh.photography.page.main.MainActivity";
     String EXTRA_PATH = "path";
     String EXTRA_FILTERS = "filters";
