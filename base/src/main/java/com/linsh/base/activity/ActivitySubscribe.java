@@ -13,10 +13,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
-import java.util.HashSet;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.HashSet;
 
 /**
  * <pre>
@@ -35,7 +35,8 @@ public interface ActivitySubscribe {
      *
      * @param activity Activity
      */
-    void attach(Activity activity);
+    default void attach(Activity activity) {
+    }
 
     /**
      * 为 Activity 回调相关的订阅事件接口进行注册, 只有注册过的订阅接口才能获得订阅回调的能力.
