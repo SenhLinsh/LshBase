@@ -78,4 +78,9 @@ class NasFileImpl implements NasFile {
     public long lastModified() throws Exception {
         return file.lastModified();
     }
+
+    @Override
+    public void setLastModified(long time) throws Exception {
+        file.setLastModified(time);
+    }
 }

@@ -31,4 +31,6 @@ public interface NasFile {
     String[] list() throws Exception;
 
     long lastModified() throws Exception;
+
+    void setLastModified(long time) throws Exception;
 }
