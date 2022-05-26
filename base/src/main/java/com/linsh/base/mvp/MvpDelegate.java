@@ -98,8 +98,8 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
     }
 
     public void setOriginPresenter(P presenter) {
-        this.originPresenter = presenter;
         this.delegatedPresenter.detachView();
+        this.originPresenter = presenter;
         this.delegatedPresenter = delegatePresenter();
         this.delegatedView = delegateView();
         // 通知 call adapter 更新绑定 presenter
@@ -112,8 +112,8 @@ class MvpDelegate<P extends Contract.Presenter, V extends Contract.View> {
     }
 
     public void setOriginView(V view) {
-        this.originView = view;
         this.delegatedView.detachPresenter();
+        this.originView = view;
         this.delegatedPresenter = delegatePresenter();
         this.delegatedView = delegateView();
         // 通知 call adapter 更新绑定 view
