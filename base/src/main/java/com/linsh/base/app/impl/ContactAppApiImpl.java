@@ -28,4 +28,16 @@ public class ContactAppApiImpl implements IContactAppApi {
             ToastUtils.show("无法找到该页面");
         }
     }
+
+    @Override
+    public void gotoPerson(Activity activity, int requestCode, String personName) {
+        Intent intent = new Intent()
+                .setClassName(PACKAGE_NAME, ACTIVITY_NAME_PERSON)
+                .putExtra(EXTRA_PERSON_NAME, personName);
+        if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
+            activity.startActivityForResult(intent, requestCode);
+        } else {
+            ToastUtils.show("无法找到该页面");
+        }
+    }
 }
