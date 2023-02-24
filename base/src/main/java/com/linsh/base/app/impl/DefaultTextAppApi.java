@@ -103,11 +103,17 @@ public class DefaultTextAppApi implements ITextAppApi {
 
     @Override
     public void gotoEditFile(String filePath, String text, boolean isEditMode, Activity activity, int requestCode) {
+        gotoEditFile(filePath, text, null, isEditMode, activity, requestCode);
+    }
+
+    @Override
+    public void gotoEditFile(String filePath, String text, String template, boolean isEditMode, Activity activity, int requestCode) {
         Intent intent = new Intent().setClassName(PACKAGE_NAME, ACTIVITY_NAME_TEXT_EDIT);
         if (intent.resolveActivity(ContextUtils.getPackageManager()) != null) {
             intent.putExtra(ITextAppApi.EXTRA_TEXT_EDIT_PATH, filePath);
             intent.putExtra(ITextAppApi.EXTRA_TEXT_EDIT_TEXT, text);
             intent.putExtra(ITextAppApi.EXTRA_TEXT_EDIT_EDIT, isEditMode);
+            intent.putExtra(ITextAppApi.EXTRA_TEXT_EDIT_TEMPLATE, template);
             activity.startActivityForResult(intent, requestCode);
         } else {
             ToastUtils.show("无法找到该页面");

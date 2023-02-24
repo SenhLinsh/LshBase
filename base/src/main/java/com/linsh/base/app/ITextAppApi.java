@@ -24,6 +24,7 @@ public interface ITextAppApi {
     String EXTRA_TEXT_EDIT_PATH = "path";
     String EXTRA_TEXT_EDIT_TEXT = "text";
     String EXTRA_TEXT_EDIT_EDIT = "edit";
+    String EXTRA_TEXT_EDIT_TEMPLATE = "template";
 
     void launch();
 
@@ -40,6 +41,8 @@ public interface ITextAppApi {
     void gotoEditFile(String filePath, String text, boolean isEditMode, Context context);
 
     void gotoEditFile(String filePath, String text, boolean isEditMode, Activity activity, int requestCode);
+
+    void gotoEditFile(String filePath, String text, String template, boolean isEditMode, Activity activity, int requestCode);
 
     void gotoEditText(String text, boolean isEditMode);
 
