@@ -24,7 +24,7 @@ import io.reactivex.schedulers.Schedulers;
 public class RxThreadManager implements ThreadManager {
 
     static class Holder {
-        static final ThreadPoolExecutor PIECE_THREAD = new ThreadPoolExecutor(0, 1,
+        static final ThreadPoolExecutor POOL_THREAD = new ThreadPoolExecutor(0, 4,
                 10, TimeUnit.MINUTES,
                 new LinkedBlockingQueue<Runnable>());
     }
@@ -50,8 +50,8 @@ public class RxThreadManager implements ThreadManager {
     }
 
     @Override
-    public void piece(Runnable task) {
-        Holder.PIECE_THREAD.execute(task);
+    public void pool(Runnable task) {
+        Holder.POOL_THREAD.execute(task);
     }
 
     @Override

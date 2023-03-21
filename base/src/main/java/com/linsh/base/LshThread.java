@@ -37,12 +37,13 @@ public class LshThread {
     }
 
     /**
-     * 碎片线程, 用于碎片化操作(操作频繁, 耗时短, 不希望被阻塞), 如 Log 日志读写等
+     * 线程池, 用于短时间内大量工作, 但又不至于创建过多线程的场景
      * <p>
-     * 注: 默认为单线程, 请勿执行长时间耗时操作而影响其他操作的效率
+     * 注: {@link ThreadManager#io(Runnable)} 的方法创建的线程数默认不作限制, 短时间内大量调用可能
+     * 会创建较多线程并行处理
      */
-    public static void piece(Runnable task) {
-        Holder.delegate.piece(task);
+    public static void pool(Runnable task) {
+        Holder.delegate.pool(task);
     }
 
     /**
@@ -82,7 +83,7 @@ public class LshThread {
                 single(task);
                 break;
             case PIECE:
-                piece(task);
+                pool(task);
                 break;
             case IO:
                 io(task);
