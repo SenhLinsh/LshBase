@@ -17,6 +17,13 @@ public interface ITextAppApi {
     String APP_NAME = "字字珠玑";
     String APP_NAME_EN = "text";
 
+    // 加密字符，已加密
+    String CHARS_ENCRYPTED_BEGIN = "%>";
+    String CHARS_ENCRYPTED_END = "<%";
+    // 加密字符，未加密 需隐藏
+    String CHARS_HIDE_BEGIN = "*>";
+    String CHARS_HIDE_END = "<*";
+
     String PATH_GIT = "/sdcard/.linsh/text/";
     String PATH_GIT_APP = PATH_GIT + "Develop/linsh/app/";
 
