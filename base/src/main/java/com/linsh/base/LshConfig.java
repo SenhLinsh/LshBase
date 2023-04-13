@@ -3,9 +3,9 @@ package com.linsh.base;
 import android.os.Environment;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.linsh.base.common.Constants;
 import com.linsh.base.config.Config;
 import com.linsh.base.config.FileConfig;
@@ -14,6 +14,7 @@ import com.linsh.base.config.LogConfig;
 import com.linsh.base.config.PublicConfig;
 import com.linsh.lshutils.utils.DebugUtilsEx;
 import com.linsh.utilseverywhere.AppUtils;
+import com.linsh.utilseverywhere.ClassUtils;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.DeviceUtils;
 import com.linsh.utilseverywhere.FileIOUtils;
@@ -93,12 +94,12 @@ public class LshConfig {
      *
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      */
+    @NonNull
     public static <T extends Config> T get(Class<T> configClass) {
         String filename = configClass.getSimpleName();
         Gson gson = new Gson();
 
-        JsonObject jsonObject = null;
-        // 1. 读取 sdcard 配置
+        // 默认读取本地配置
         File configFile = getConfigFile(configClass);
         String json = null;
         if (configFile != null) {
@@ -110,35 +111,22 @@ public class LshConfig {
         }
         if (json != null) {
             try {
-                jsonObject = gson.fromJson(json, JsonObject.class);
+                return gson.fromJson(json, configClass);
             } catch (Exception e) {
                 Log.e(BuildConfig.TAG, "sdcard 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
             }
         }
-        // 2. 读取 DefaultConfig
-        Config config = defaultConfigs.get(configClass);
-        if (config == null) {
-            // 2.1 asset/config
-            json = ResourceUtils.getTextFromAssets("config/" + filename);
-            if (json == null) {
-                throw new IllegalArgumentException("获取配置 <" + filename + "> 前, 请使用 setDefaultConfig() 进行默认设置");
-            }
-            try {
-                config = gson.fromJson(json, configClass);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("assets 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
-            }
+        // 其次读取 DefaultConfig
+        T config = (T) defaultConfigs.get(configClass);
+        if (config != null) {
+            return config;
         }
-        if (jsonObject == null) {
-            return (T) config;
+        // 不再从 assets 读取配置，如果 defaultConfig 为 null，直接反射实例，使用 Config 类配置的默认字段
+        try {
+            return (T) ClassUtils.newInstance(configClass);
+        } catch (Exception e) {
+            throw new RuntimeException("new instance for config class failed", e);
         }
-        // 将 sdcard 的配置覆盖到 DefaultConfig 中
-        JsonObject jsonConfig = gson.toJsonTree(config).getAsJsonObject();
-        for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
-            jsonConfig.add(entry.getKey(), entry.getValue());
-        }
-        // 反序列化成对象
-        return gson.fromJson(jsonConfig, configClass);
     }
 
     /**
