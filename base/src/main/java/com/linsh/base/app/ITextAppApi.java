@@ -26,6 +26,7 @@ public interface ITextAppApi {
 
     String PATH_GIT = "/sdcard/.linsh/text/";
     String PATH_GIT_APP = PATH_GIT + "Develop/linsh/app/";
+    String PATH_GIT_CONFIG = PATH_GIT + "Develop/linsh/config/";
 
     String ACTIVITY_NAME_TEXT_EDIT = "com.linsh.text.page.text.TextEditActivity";
     String EXTRA_TEXT_EDIT_PATH = "path";
