@@ -3,6 +3,7 @@ package com.linsh.base.net.nas2;
 import java.io.Closeable;
 import java.io.File;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * <pre>
@@ -35,7 +36,7 @@ public interface INasConnection extends Closeable {
      *
      * @param path 文件夹路径
      */
-    INasFileInfo[] list(String path) throws Exception;
+    List<INasFileInfo> list(String path) throws Exception;
 
     /**
      * 创建文件夹

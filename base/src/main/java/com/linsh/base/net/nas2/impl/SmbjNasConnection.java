@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -69,13 +70,15 @@ class SmbjNasConnection implements INasConnection {
 
     // list 查找的内容可能被缓存，即被删除后继续查找还会存在，需要通过 fileExists 来判断文件是否存在，再继续相关操作
     @Override
-    public INasFileInfo[] list(String path) throws Exception {
+    public List<INasFileInfo> list(String path) throws Exception {
         List<FileIdBothDirectoryInformation> informations = share.list(path);
-        INasFileInfo[] infos = new INasFileInfo[informations.size()];
-        for (int i = 0; i < informations.size(); i++) {
-            infos[i] = new SmbjFileInfo(informations.get(i));
+        List<INasFileInfo> fileInfos = new ArrayList<>();
+        for (FileIdBothDirectoryInformation information : informations) {
+            if (information.getFileName().equals(".") || information.getFileName().equals(".."))
+                continue;
+            fileInfos.add(new SmbjFileInfo(information));
         }
-        return infos;
+        return fileInfos;
     }
 
     @Override
