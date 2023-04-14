@@ -24,9 +24,17 @@ import io.reactivex.schedulers.Schedulers;
 public class RxThreadManager implements ThreadManager {
 
     static class Holder {
-        static final ThreadPoolExecutor POOL_THREAD = new ThreadPoolExecutor(0, 4,
-                10, TimeUnit.MINUTES,
-                new LinkedBlockingQueue<Runnable>());
+        /**
+         * 使用 ThreadPoolExecutor 实现, 默认 8 个核心线程, 且核心线程可被销毁(保证线程回收)
+         */
+        static final ThreadPoolExecutor POOL_THREAD = new ThreadPoolExecutor(8, 8,
+                1, TimeUnit.MINUTES,
+                new LinkedBlockingQueue<>());
+
+        static {
+            // 核心线程可超时销毁
+            POOL_THREAD.allowCoreThreadTimeOut(true);
+        }
     }
 
     static class PresenterThreadHolder {
