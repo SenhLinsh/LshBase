@@ -35,4 +35,8 @@ public interface IType {
     // 是否为隐藏项
     // # 为默认显示，* 为默认隐藏
     boolean isHidden();
+
+    // 是否是重要项
+    // $ 为默认隐藏
+    boolean isImportant();
 }
