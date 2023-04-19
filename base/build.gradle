@@ -44,4 +44,7 @@ dependencies {
     // LshNas
     implementation 'org.samba.jcifs:jcifs:1.3.17'
     implementation 'com.hierynomus:smbj:0.11.5'
+
+    implementation 'com.github.SenhLinsh:InterfaceRegister:1.0.0'
+    annotationProcessor 'com.github.SenhLinsh:InterfaceRegister:1.0.0'
 }
