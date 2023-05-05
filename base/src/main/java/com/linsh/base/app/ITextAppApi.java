@@ -24,7 +24,7 @@ public interface ITextAppApi {
     String CHARS_HIDE_BEGIN = "*>";
     String CHARS_HIDE_END = "<*";
 
-    String PATH_GIT = "/sdcard/.linsh/text/";
+    String PATH_GIT = IBaseAppApi.PATH_LINSH + "text/";
     String PATH_GIT_APP = PATH_GIT + "Develop/linsh/app/";
     String PATH_GIT_CONFIG = PATH_GIT + "Develop/linsh/config/";
 
