@@ -1,5 +1,8 @@
 package com.linsh.base.variable;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,12 +22,22 @@ public class DefaultVariableManager implements IVariableManager {
     private final Map<String, Set<Subscriber<?>>> subscribersMap = new HashMap<>();
 
     @Override
-    public <T> T get(String key) {
+    public <T> T get(@NonNull String key) {
         return (T) variables.get(key);
     }
 
+    @Nullable
     @Override
-    public <T> T get(Class<T> classOfT) {
+    public <T> T get(@NonNull String key, @NonNull T defaultValue) {
+        Object value = variables.get(key);
+        if (value != null && defaultValue.getClass().isAssignableFrom(value.getClass())) {
+            return (T) value;
+        }
+        return defaultValue;
+    }
+
+    @Override
+    public <T> T get(@NonNull Class<T> classOfT) {
         Object value = variables.get(classOfT.getName());
         if (value != null && classOfT.isAssignableFrom(value.getClass())) {
             return (T) value;
@@ -33,34 +46,34 @@ public class DefaultVariableManager implements IVariableManager {
     }
 
     @Override
-    public <T> void put(String key, T value) {
+    public <T> void put(@NonNull String key, T value) {
         variables.put(key, value);
         notifySubscribers(key, value);
     }
 
     @Override
-    public <T> void put(Class<T> classOfT, T value) {
+    public <T> void put(@NonNull Class<T> classOfT, T value) {
         put(classOfT.getName(), value);
     }
 
     @Override
-    public <T> void put(T value) {
+    public <T> void put(@NonNull T value) {
         put(value.getClass().getName(), value);
     }
 
     @Override
-    public void remove(String key) {
+    public void remove(@NonNull String key) {
         variables.remove(key);
         notifySubscribers(key, null);
     }
 
     @Override
-    public <T> void remove(Class<T> classOfT) {
+    public <T> void remove(@NonNull Class<T> classOfT) {
         remove(classOfT.getName());
     }
 
     @Override
-    public <T> void subscribe(String key, Subscriber<T> subscriber) {
+    public <T> void subscribe(@NonNull String key, @NonNull Subscriber<T> subscriber) {
         Set<Subscriber<?>> subscribers = this.subscribersMap.get(key);
         if (subscribers == null) {
             subscribers = new HashSet<>();
@@ -70,7 +83,7 @@ public class DefaultVariableManager implements IVariableManager {
     }
 
     @Override
-    public <T> void subscribe(Class<T> classOfT, Subscriber<T> subscriber) {
+    public <T> void subscribe(@NonNull Class<T> classOfT, @NonNull Subscriber<T> subscriber) {
         subscribe(classOfT.getName(), subscriber);
     }
 
