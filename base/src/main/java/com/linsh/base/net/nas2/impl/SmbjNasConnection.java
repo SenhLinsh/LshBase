@@ -149,8 +149,8 @@ class SmbjNasConnection implements INasConnection {
                 new HashSet<>(Collections.singletonList(SMB2CreateOptions.FILE_DIRECTORY_FILE)));
         FileBasicInformation information = file.getFileInformation(FileBasicInformation.class);
         FileTime fileTime = FileTime.ofEpochMillis(time);
-        file.setFileInformation(new FileBasicInformation(information.getCreationTime(),
-                information.getLastAccessTime(), fileTime, fileTime, information.getFileAttributes()));
+        file.setFileInformation(new FileBasicInformation(fileTime,
+                fileTime, fileTime, fileTime, information.getFileAttributes()));
         file.close();
     }
 
