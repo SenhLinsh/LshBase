@@ -126,7 +126,7 @@ class SmbjNasConnection implements INasConnection {
     // 注：需要先删除文件夹下面的文件，才能删除当前文件夹
     @Override
     public void deleteDir(String path) throws Exception {
-        share.rmdir(path, true);
+        share.rmdir(path, false);
     }
 
     @Override
