@@ -93,13 +93,19 @@ class SmbjNasConnection implements INasConnection {
                 new HashSet<>(Collections.singletonList(FileAttributes.FILE_ATTRIBUTE_NORMAL)),
                 SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN,
                 new HashSet<>(Collections.singletonList(SMB2CreateOptions.FILE_DIRECTORY_FILE)));
+        // nas file 的 close 可能无法被调用的情况
         return file.getInputStream();
     }
 
     @Override
     public void download(String path, File dest) throws Exception {
-        InputStream inputStream = pull(path);
-        StreamUtils.write(inputStream, dest);
+        com.hierynomus.smbj.share.File file = share.openFile(path,
+                new HashSet<>(Collections.singletonList(AccessMask.GENERIC_ALL)),
+                new HashSet<>(Collections.singletonList(FileAttributes.FILE_ATTRIBUTE_NORMAL)),
+                SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN,
+                new HashSet<>(Collections.singletonList(SMB2CreateOptions.FILE_DIRECTORY_FILE)));
+        StreamUtils.write(file.getInputStream(), dest);
+        file.close();
     }
 
     @Override
@@ -111,6 +117,7 @@ class SmbjNasConnection implements INasConnection {
                 new HashSet<>(Collections.singletonList(SMB2CreateOptions.FILE_DIRECTORY_FILE)));
         OutputStream outputStream = file.getOutputStream();
         StreamUtils.write(in, outputStream);
+        file.close();
     }
 
     @Override
