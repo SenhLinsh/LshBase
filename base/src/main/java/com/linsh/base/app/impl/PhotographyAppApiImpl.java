@@ -1,8 +1,13 @@
 package com.linsh.base.app.impl;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
+import android.os.IBinder;
+import android.os.IInterface;
 
+import com.linsh.base.app.IAppConnection;
 import com.linsh.base.app.IPhotographyAppApi;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.ToastUtils;
@@ -44,5 +49,24 @@ public class PhotographyAppApiImpl implements IPhotographyAppApi {
         } else {
             ToastUtils.show("无法找到该页面");
         }
+    }
+
+    @Override
+    public <T extends IInterface> void connectService(IAppConnection<T> connection) {
+        // 根据 action 打开并连接服务
+        Intent intent = new Intent(SERVICE_ACTION);
+        intent.setPackage(PACKAGE_NAME);
+        ContextUtils.startService(intent);
+        ContextUtils.get().bindService(intent, new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                connection.onServiceConnected(name.getPackageName(), (T) service);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+                connection.onServiceDisconnected(name.getPackageName());
+            }
+        }, 0);
     }
 }

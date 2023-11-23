@@ -18,6 +18,7 @@ public interface IPhotographyAppApi {
     String PATH_PHOTOGRAPHY = IBaseAppApi.PATH_LINSH + "photography/";
     String PATH_PHOTOS = PATH_PHOTOGRAPHY + "图片/";
 
+    String SERVICE_ACTION = "com.linsh.photography.PhotographyService";
     String ACTIVITY_NAME_MAIN = "com.linsh.photography.page.main.MainActivity";
     String EXTRA_PATH = "path";
     String EXTRA_FILTERS = "filters";
@@ -48,4 +49,9 @@ public interface IPhotographyAppApi {
      * @param requestCode 请求码
      */
     void gotoPhotoSelector(Activity activity, String path, String[] filters, int requestCode);
+
+    /**
+     * 连接AIDL服务
+     */
+    <T extends android.os.IInterface> void connectService(IAppConnection<T> connection);
 }

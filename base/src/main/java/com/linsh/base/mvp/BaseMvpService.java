@@ -3,6 +3,8 @@ package com.linsh.base.mvp;
 import android.app.Service;
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.linsh.base.LshLog;
 import com.linsh.utilseverywhere.ClassUtils;
 
@@ -103,10 +105,12 @@ public abstract class BaseMvpService<P extends Contract.Presenter> extends Servi
         LshLog.v(TAG, "detachPresenter");
     }
 
+    @NonNull
     protected P getPresenter() {
         return mvpDelegate.getPresenter();
     }
 
+    @NonNull
     @Override
     public Context getContext() {
         return this;
