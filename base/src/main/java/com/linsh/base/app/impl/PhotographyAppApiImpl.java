@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Build;
 import android.os.IBinder;
 
 import com.linsh.base.app.IAppApiConnection;
@@ -54,14 +55,18 @@ public class PhotographyAppApiImpl implements IPhotographyAppApi {
     @Override
     public void connectService(IAppApiConnection<IPhotographyAidlApi> connection) {
         // 根据 action 打开并连接服务
-        Intent intent = new Intent(SERVICE_ACTION);
-        intent.setPackage(PACKAGE_NAME);
-        ContextUtils.startService(intent);
+        Intent intent = new Intent(SERVICE_ACTION)
+                .setPackage(PACKAGE_NAME);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ContextUtils.get().startForegroundService(intent);
+        } else {
+            ContextUtils.get().startService(intent);
+        }
         ContextUtils.get().bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 IPhotographyAidlApi aidlApi = IPhotographyAidlApi.Stub.asInterface(service);
-                connection.onServiceConnected(name.getPackageName(), aidlApi);
+                connection.onServiceConnected(name.getPackageName(), this, aidlApi);
             }
 
             @Override

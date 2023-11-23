@@ -1,5 +1,9 @@
 package com.linsh.base.app;
 
+import android.content.ServiceConnection;
+
+import androidx.annotation.NonNull;
+
 /**
  * <pre>
  *    author : Senh Linsh
@@ -9,8 +13,7 @@ package com.linsh.base.app;
  * </pre>
  */
 public interface IAppApiConnection<T extends android.os.IInterface> {
+    void onServiceConnected(@NonNull String packageName, @NonNull ServiceConnection connection, @NonNull T aidlApi);
 
-    void onServiceConnected(String packageName, T aidlApi);
-
-    void onServiceDisconnected(String packageName);
+    void onServiceDisconnected(@NonNull String packageName);
 }
