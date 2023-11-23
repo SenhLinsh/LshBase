@@ -8,9 +8,9 @@ package com.linsh.base.app;
  *    desc   :
  * </pre>
  */
-public interface IAppConnection<T extends android.os.IInterface> {
+public interface IAppApiConnection<T extends android.os.IInterface> {
 
-    void onServiceConnected(String packageName, T service);
+    void onServiceConnected(String packageName, T aidlApi);
 
     void onServiceDisconnected(String packageName);
 }

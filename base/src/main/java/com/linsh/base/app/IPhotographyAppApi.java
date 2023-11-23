@@ -53,5 +53,5 @@ public interface IPhotographyAppApi {
     /**
      * 连接AIDL服务
      */
-    <T extends android.os.IInterface> void connectService(IAppConnection<T> connection);
+    void connectService(IAppApiConnection<IPhotographyAidlApi> connection);
 }

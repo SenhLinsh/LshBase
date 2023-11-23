@@ -5,9 +5,9 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.os.IInterface;
 
-import com.linsh.base.app.IAppConnection;
+import com.linsh.base.app.IAppApiConnection;
+import com.linsh.base.app.IPhotographyAidlApi;
 import com.linsh.base.app.IPhotographyAppApi;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.ToastUtils;
@@ -52,7 +52,7 @@ public class PhotographyAppApiImpl implements IPhotographyAppApi {
     }
 
     @Override
-    public <T extends IInterface> void connectService(IAppConnection<T> connection) {
+    public void connectService(IAppApiConnection<IPhotographyAidlApi> connection) {
         // 根据 action 打开并连接服务
         Intent intent = new Intent(SERVICE_ACTION);
         intent.setPackage(PACKAGE_NAME);
@@ -60,7 +60,8 @@ public class PhotographyAppApiImpl implements IPhotographyAppApi {
         ContextUtils.get().bindService(intent, new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
-                connection.onServiceConnected(name.getPackageName(), (T) service);
+                IPhotographyAidlApi aidlApi = IPhotographyAidlApi.Stub.asInterface(service);
+                connection.onServiceConnected(name.getPackageName(), aidlApi);
             }
 
             @Override
