@@ -15,6 +15,7 @@ public interface IContactAppApi {
     String PACKAGE_NAME = "com.linsh.contact";
     String APP_NAME = "友人帐";
     String APP_NAME_EN = "contact";
+    String PATH_CONTACT = IBaseAppApi.PATH_LINSH + APP_NAME_EN + "/";
 
     String ACTIVITY_NAME_SEARCH = "com.linsh.contact.page.search.SearchActivity";
     String ACTIVITY_NAME_PERSON = "com.linsh.contact.page.person_detail.PersonDetailActivity";
