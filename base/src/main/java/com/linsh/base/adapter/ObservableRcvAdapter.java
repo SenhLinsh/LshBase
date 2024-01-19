@@ -200,7 +200,7 @@ public abstract class ObservableRcvAdapter<VH extends RecyclerView.ViewHolder> e
 
     //========================================= Implement =========================================//
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull VH holder, int position) {
         if (mSubscribers != null) {
             Set<RcvAdapterSubscribe> callbacks = mSubscribers.get(RcvAdapterSubscribe.OnBindViewHolder.class);
             if (callbacks != null) {
