@@ -16,6 +16,7 @@ public interface ITextAppApi {
     String PACKAGE_NAME = "com.linsh.text";
     String APP_NAME = "字字珠玑";
     String APP_NAME_EN = "text";
+    String BROADCAST_ACTION_MAIN = "com.linsh.text.action.MAIN";
 
     // 加密字符，已加密
     String CHARS_ENCRYPTED_BEGIN = "%>";
@@ -33,6 +34,8 @@ public interface ITextAppApi {
     String EXTRA_TEXT_EDIT_TEXT = "text";
     String EXTRA_TEXT_EDIT_EDIT = "edit";
     String EXTRA_TEXT_EDIT_TEMPLATE = "template";
+
+    void broadcast();
 
     void launch();
 

@@ -7,6 +7,8 @@ import android.content.Intent;
 import com.linsh.base.app.ITextAppApi;
 import com.linsh.utilseverywhere.ContextUtils;
 import com.linsh.utilseverywhere.IntentUtils;
+import com.linsh.utilseverywhere.SharedPreferenceUtils;
+import com.linsh.utilseverywhere.Times;
 import com.linsh.utilseverywhere.ToastUtils;
 
 /**
@@ -18,6 +20,16 @@ import com.linsh.utilseverywhere.ToastUtils;
  * </pre>
  */
 public class DefaultTextAppApi implements ITextAppApi {
+
+    @Override
+    public void broadcast() {
+        long time = SharedPreferenceUtils.getLong("text_app_broadcast", 0);
+        if (System.currentTimeMillis() - time > Times.day(0.5f)) {
+            SharedPreferenceUtils.putLong("text_app_broadcast", System.currentTimeMillis());
+            ContextUtils.get().sendBroadcast(new Intent(BROADCAST_ACTION_MAIN)
+                    .setPackage(PACKAGE_NAME));
+        }
+    }
 
     @Override
     public void launch() {
