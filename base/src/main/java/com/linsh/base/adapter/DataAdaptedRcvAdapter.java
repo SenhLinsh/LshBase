@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.linsh.utilseverywhere.ClassUtils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,18 +45,7 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
     }
 
     public DataAdaptedRcvAdapter(Class<? extends DataAdaptedViewHolder> viewHolderClass) {
-        Type genericType = ClassUtils.getGenericType(viewHolderClass, DataAdaptedViewHolder.class, 0);
-        if (genericType == null)
-            throw new RuntimeException("请指定 ViewHolder 的泛型");
-        if (genericType == Object.class) {
-            setDefaultViewHolder((Class) viewHolderClass);
-        } else {
-            registerViewHolder((Class) genericType, (Class) viewHolderClass);
-        }
-    }
-
-    public <T> DataAdaptedRcvAdapter(Class<T> dataType, Class<? extends DataAdaptedViewHolder<? extends T>> viewHolderClass) {
-        registerViewHolder(dataType, viewHolderClass);
+        registerViewHolder(new DataAdaptedHolderFactory(viewHolderClass), null);
     }
 
     /**
@@ -64,7 +54,7 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      * @param data        数据
      * @param itemAdapter item适配器
      */
-    public <T> void setData(T data, @NonNull ItemAdapter<T, ?> itemAdapter) {
+    public <T> void setData(@Nullable T data, @NonNull ItemAdapter<T, ?> itemAdapter) {
         this.data = data;
         this.itemAdapter = itemAdapter;
         notifyDataSetChanged();
@@ -86,7 +76,7 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      *
      * @param array 数据列表
      */
-    public void setData(Object[] array) {
+    public void setData(@Nullable Object[] array) {
         this.data = array;
         this.itemAdapter = ItemAdapter.ARRAY_ADAPTER;
         notifyDataSetChanged();
@@ -101,6 +91,26 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
         return data;
     }
 
+    /**
+     * 通过 layout id 注册 ViewHolder
+     *
+     * @param layoutId   布局 id
+     * @param itemBinder item 绑定器
+     */
+    public <T> HolderBinder registerViewHolder(int layoutId, ItemBinder<T> itemBinder) {
+        return registerViewHolder(new ResIdHolderFactory<T>(layoutId, itemBinder), null);
+    }
+
+    /**
+     * 通过 layout id 注册 ViewHolder
+     *
+     * @param layoutId   布局 id
+     * @param itemBinder item 绑定器
+     * @param listener   ViewHolder 事件监听器
+     */
+    public <T> HolderBinder registerViewHolder(int layoutId, ItemBinder<T> itemBinder, HolderEventListener<T> listener) {
+        return registerViewHolder(new ResIdHolderFactory<T>(layoutId, itemBinder), listener);
+    }
 
     /**
      * 注册 ViewHolder
@@ -110,7 +120,7 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      * @param viewHolderClass ViewHolder 类
      */
     public <T> HolderBinder registerViewHolder(Class<? extends DataAdaptedViewHolder<? extends T>> viewHolderClass) {
-        return registerViewHolder(viewHolderClass, (HolderEventListener<T>) null);
+        return registerViewHolder(new DataAdaptedHolderFactory(viewHolderClass), null);
     }
 
     /**
@@ -122,12 +132,7 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      * @param listener        ViewHolder 事件监听器
      */
     public <T> HolderBinder registerViewHolder(Class<? extends DataAdaptedViewHolder<? extends T>> viewHolderClass, HolderEventListener<T> listener) {
-        Type genericType = ClassUtils.getGenericType(viewHolderClass, DataAdaptedViewHolder.class, 0);
-        if (genericType == null)
-            throw new RuntimeException("请指定 ViewHolder 的泛型");
-        if (!(genericType instanceof Class))
-            throw new RuntimeException("请指定 ViewHolder 的泛型为 Class");
-        return registerViewHolder((Class) genericType, viewHolderClass, listener);
+        return registerViewHolder(new DataAdaptedHolderFactory(viewHolderClass), listener);
     }
 
     /**
@@ -139,7 +144,7 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      * @param viewHolderClass ViewHolder 类
      */
     public <T> HolderBinder registerViewHolder(Class<T> dataType, Class<? extends DataAdaptedViewHolder<? extends T>> viewHolderClass) {
-        return registerViewHolder(dataType, viewHolderClass, null);
+        return registerViewHolder(new DataAdaptedHolderFactory(dataType, viewHolderClass), null);
     }
 
     /**
@@ -152,7 +157,26 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      * @param listener        ViewHolder 事件监听器
      */
     public <T> HolderBinder registerViewHolder(Class<T> dataType, Class<? extends DataAdaptedViewHolder<? extends T>> viewHolderClass, HolderEventListener<T> listener) {
-        HolderBinder binder = new HolderBinder(dataType, viewHolderClass, listener);
+        return registerViewHolder(new DataAdaptedHolderFactory(dataType, viewHolderClass), listener);
+    }
+
+    /**
+     * 注册 ViewHolder
+     *
+     * @param holderFactory ViewHolder 工厂
+     */
+    public <T> HolderBinder registerViewHolder(@NonNull HolderFactory holderFactory) {
+        return registerViewHolder(holderFactory, null);
+    }
+
+    /**
+     * 注册 ViewHolder
+     *
+     * @param holderFactory ViewHolder 工厂
+     * @param listener      ViewHolder 事件监听器
+     */
+    public <T> HolderBinder registerViewHolder(@NonNull HolderFactory holderFactory, @Nullable HolderEventListener<T> listener) {
+        HolderBinder binder = new HolderBinder(holderFactory, listener);
         mViewHolderBinders.add(binder);
         return binder;
     }
@@ -168,7 +192,7 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      * 设置默认的 viewHolderClass
      */
     public HolderBinder setDefaultViewHolder(Class<? extends DataAdaptedViewHolder<Object>> viewHolderClass, HolderEventListener<Object> listener) {
-        return mDefaultViewHolderBinder = new HolderBinder(Object.class, viewHolderClass, listener);
+        return mDefaultViewHolderBinder = new HolderBinder(new DataAdaptedHolderFactory(Object.class, viewHolderClass), listener);
     }
 
     /**
@@ -193,11 +217,11 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
     @Override
     public int getItemViewType(int position) {
         if (data != null) {
-            // 根据item数据类型获取viewHolder类型
+            // 遍历 holderFactory，找到可以处理 item 的 holderFactory
             Object item = itemAdapter.get(this.data, position);
             for (int i = 0; i < mViewHolderBinders.size(); i++) {
                 HolderBinder holderBinder = mViewHolderBinders.get(i);
-                if (holderBinder.holderType.isInstance(item)) {
+                if (holderBinder.holderFactory.handle(item, position)) {
                     return i;
                 }
             }
@@ -216,22 +240,9 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
     @Override
     public DataAdaptedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == -1) {
-            try {
-                DataAdaptedViewHolder viewHolder = mDefaultViewHolderBinder.viewHolderClass.getConstructor(ViewGroup.class).newInstance(parent);
-                viewHolder.eventListener = mDefaultViewHolderBinder.holderEventListener;
-                return viewHolder;
-            } catch (Exception e) {
-                throw new RuntimeException(mDefaultViewHolderBinder.viewHolderClass.getName() + " 实例化失败", e);
-            }
+            return mDefaultViewHolderBinder.holderFactory.create(parent);
         }
-        HolderBinder holderBinder = mViewHolderBinders.get(viewType);
-        try {
-            DataAdaptedViewHolder viewHolder = holderBinder.viewHolderClass.getConstructor(ViewGroup.class).newInstance(parent);
-            viewHolder.eventListener = holderBinder.holderEventListener;
-            return viewHolder;
-        } catch (Exception e) {
-            throw new RuntimeException(holderBinder.viewHolderClass.getName() + " 实例化失败", e);
-        }
+        return mViewHolderBinders.get(viewType).holderFactory.create(parent);
     }
 
     @Override
@@ -320,13 +331,11 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
      * 用于绑定 ViewHolder 类型和数据类型及事件监听器
      */
     public static class HolderBinder {
-        private final Class<?> holderType;
-        private final Class<? extends DataAdaptedViewHolder> viewHolderClass;
+        private final HolderFactory holderFactory;
         private HolderEventListener holderEventListener;
 
-        public HolderBinder(Class<?> holderType, Class<? extends DataAdaptedViewHolder> viewHolderClass, HolderEventListener holderEventListener) {
-            this.holderType = holderType;
-            this.viewHolderClass = viewHolderClass;
+        public HolderBinder(HolderFactory factory, HolderEventListener holderEventListener) {
+            this.holderFactory = factory;
             this.holderEventListener = holderEventListener;
         }
 
@@ -334,6 +343,123 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
             this.holderEventListener = holderEventListener;
         }
     }
+
+    /**
+     * 条目绑定器
+     * <p>
+     * 用于 DataAdaptedRcvAdapter 绑定条目数据的扩展接口
+     */
+    public interface ItemBinder<T> {
+
+        /**
+         * 绑定条目数据
+         *
+         * @param item     条目数据
+         * @param position 位置
+         */
+        void onBindItem(RecyclerView.ViewHolder holder, @NonNull T item, int position);
+    }
+
+    /**
+     * 默认 ViewHolder 绑定器
+     * <p>
+     * 用于绑定默认 ViewHolder 类型和数据类型及事件监听器
+     */
+    public interface HolderFactory {
+        /**
+         * 判断数据类型是否匹配
+         *
+         * @param item     数据
+         * @param position 位置
+         * @return 是否匹配
+         */
+        boolean handle(Object item, int position);
+
+        /**
+         * 创建 ViewHolder
+         *
+         * @param parent 父布局
+         * @return ViewHolder
+         */
+        DataAdaptedViewHolder<?> create(ViewGroup parent);
+    }
+
+    /**
+     * 默认 ViewHolder 绑定器
+     * <p>
+     * 用于绑定默认 ViewHolder 类型和数据类型及事件监听器
+     */
+    public static class DataAdaptedHolderFactory implements HolderFactory {
+        private final Class<?> itemType;
+        private final Class<? extends DataAdaptedViewHolder> viewHolderClass;
+
+        public DataAdaptedHolderFactory(Class<? extends DataAdaptedViewHolder> viewHolderClass) {
+            Type genericType = ClassUtils.getGenericType(viewHolderClass, DataAdaptedViewHolder.class, 0);
+            if (genericType == null)
+                throw new RuntimeException("请指定 ViewHolder 的泛型");
+            if (!(genericType instanceof Class))
+                throw new RuntimeException("请指定 ViewHolder 的泛型为 Class");
+            this.itemType = (Class<?>) genericType;
+            this.viewHolderClass = viewHolderClass;
+        }
+
+        public DataAdaptedHolderFactory(Class<?> itemType, Class<? extends DataAdaptedViewHolder> viewHolderClass) {
+            this.itemType = itemType;
+            this.viewHolderClass = viewHolderClass;
+        }
+
+        @Override
+        public boolean handle(Object item, int position) {
+            return itemType.isInstance(item);
+        }
+
+        @Override
+        public DataAdaptedViewHolder<?> create(ViewGroup parent) {
+            try {
+                Constructor constructor = viewHolderClass.getConstructor(ViewGroup.class);
+                constructor.setAccessible(true);
+                return (DataAdaptedViewHolder<?>) constructor.newInstance(parent);
+            } catch (Exception e) {
+                throw new RuntimeException(viewHolderClass.getName() + " 实例化失败", e);
+            }
+        }
+    }
+
+    /**
+     * 通过 ResId 创建 ViewHolder 的 HolderFactory
+     */
+    public static class ResIdHolderFactory<T> implements HolderFactory {
+        private final int resId;
+        private final ItemBinder<T> itemBinder;
+
+        public ResIdHolderFactory(int resId, ItemBinder<T> itemBinder) {
+            this.resId = resId;
+            this.itemBinder = itemBinder;
+        }
+
+        @Override
+        public boolean handle(Object item, int position) {
+            return ((Class) ClassUtils.getGenericType(getClass(), ResIdHolderFactory.class)).isInstance(item);
+        }
+
+        @Override
+        public DataAdaptedViewHolder<?> create(ViewGroup parent) {
+            return new ResIdHolderFactory.ViewHolder(parent);
+        }
+
+        private class ViewHolder extends DataAdaptedViewHolder<T> {
+
+            public ViewHolder(ViewGroup parent) {
+                super(parent, resId);
+            }
+
+            @Override
+            public void onBindItem(@NonNull T item, int position) {
+                itemBinder.onBindItem(this, item, position);
+            }
+        }
+    }
+
 
     /**
      * 条目点击事件监听器
@@ -358,10 +484,11 @@ public class DataAdaptedRcvAdapter extends BaseRcvAdapter<DataAdaptedRcvAdapter.
         /**
          * ViewHolder 事件回调
          *
-         * @param type 事件类型
-         * @param pos  位置
-         * @param item 数据
+         * @param viewHolder ViewHolder
+         * @param type       事件类型，用于区分不同事件，可在 ViewHolder 中根据实际需求定义常量
+         * @param pos        位置
+         * @param item       数据
          */
-        void onEvent(int type, int pos, T item);
+        void onEvent(RecyclerView.ViewHolder viewHolder, String type, int pos, T item);
     }
 }
