@@ -14,6 +14,9 @@ import java.util.List;
  */
 public interface IType {
 
+    // 父类型
+    IType getParent();
+
     // 类型等级, 一个 # 或 * 为一级
     int getLevel();
 
