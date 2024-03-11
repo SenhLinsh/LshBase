@@ -1,10 +1,9 @@
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
 
 android {
-    compileSdkVersion 28
-
+    compileSdk 28
     defaultConfig {
+        namespace "com.linsh.base"
         minSdkVersion 24
         targetSdkVersion 28
         versionCode 1
@@ -14,6 +13,9 @@ android {
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+    buildFeatures {
+        aidl true
     }
 }
 
@@ -48,17 +50,4 @@ dependencies {
 
     implementation 'com.github.SenhLinsh:InterfaceRegister:1.0.0'
     annotationProcessor 'com.github.SenhLinsh:InterfaceRegister:1.0.0'
-}
-
-afterEvaluate {
-    publishing {
-        publications {
-            release(MavenPublication) {
-                from components.release
-                groupId = 'com.github.SenhLinsh'
-                artifactId = 'LshBase'
-                version = '1.0.0'
-            }
-        }
-    }
 }
