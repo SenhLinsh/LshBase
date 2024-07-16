@@ -22,9 +22,14 @@ public interface IPhotographyAppApi {
     String ACTIVITY_NAME_MAIN = "com.linsh.photography.page.main.MainActivity";
     String EXTRA_PATH = "path";
     String EXTRA_FILTERS = "filters";
+    // 浏览类型
     String EXTRA_TYPE = "type";
+    // 浏览类型：默认（跳转当前页面进行进行搜索）
     int EXTRA_TYPE_DEFAULT = 0;
+    // 浏览类型：选择（点击图片后返回图片MD5和路径）
     int EXTRA_TYPE_SELECTOR = 1;
+    // 浏览类型：浏览（返回直接退出页面）
+    int EXTRA_TYPE_BROWSE = 2;
     String RESULT_PATH = "path";
     String RESULT_MD5 = "md5";
     String QUERY_TYPE_DESC = "内容";
@@ -39,6 +44,15 @@ public interface IPhotographyAppApi {
      * @param filters  过滤条件
      */
     void gotoPhotoList(Activity activity, String path, String[] filters);
+
+    /**
+     * 跳转图片浏览页
+     *
+     * @param activity Activity 用于跳转
+     * @param path     图片所在路径，如果是目录，请以 “/” 结尾
+     * @param filters  过滤条件
+     */
+    void gotoPhotoBrowser(Activity activity, String path, String[] filters);
 
     /**
      * 跳转图片列表页，且需要选择图片并返回
