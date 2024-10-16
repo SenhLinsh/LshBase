@@ -12,6 +12,7 @@ import com.hierynomus.mssmb2.SMB2ShareAccess;
 import com.hierynomus.smbj.SMBClient;
 import com.hierynomus.smbj.connection.Connection;
 import com.hierynomus.smbj.session.Session;
+import com.hierynomus.smbj.share.Directory;
 import com.hierynomus.smbj.share.DiskShare;
 import com.linsh.base.net.nas2.INasConnection;
 import com.linsh.base.net.nas2.INasFileInfo;
@@ -138,13 +139,23 @@ class SmbjNasConnection implements INasConnection {
 
     @Override
     public void move(String srcPath, String destPath) throws Exception {
-        com.hierynomus.smbj.share.File file = share.openFile(srcPath,
-                new HashSet<>(Collections.singletonList(AccessMask.GENERIC_ALL)),
-                new HashSet<>(Collections.singletonList(FileAttributes.FILE_ATTRIBUTE_NORMAL)),
-                SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN,
-                new HashSet<>(Collections.singletonList(SMB2CreateOptions.FILE_DIRECTORY_FILE)));
-        file.rename(destPath);
-        file.close();
+        if (srcPath.endsWith("/")) {
+            Directory directory = share.openDirectory(srcPath,
+                    new HashSet<>(Collections.singletonList(AccessMask.GENERIC_ALL)),
+                    new HashSet<>(Collections.singletonList(FileAttributes.FILE_ATTRIBUTE_NORMAL)),
+                    SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN,
+                    new HashSet<>(Collections.singletonList(SMB2CreateOptions.FILE_DIRECTORY_FILE)));
+            directory.rename(destPath);
+            directory.close();
+        } else {
+            com.hierynomus.smbj.share.File file = share.openFile(srcPath,
+                    new HashSet<>(Collections.singletonList(AccessMask.GENERIC_ALL)),
+                    new HashSet<>(Collections.singletonList(FileAttributes.FILE_ATTRIBUTE_NORMAL)),
+                    SMB2ShareAccess.ALL, SMB2CreateDisposition.FILE_OPEN,
+                    new HashSet<>(Collections.singletonList(SMB2CreateOptions.FILE_DIRECTORY_FILE)));
+            file.rename(destPath);
+            file.close();
+        }
     }
 
     @Override
