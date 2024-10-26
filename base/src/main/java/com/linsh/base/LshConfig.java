@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.linsh.base.common.Constants;
 import com.linsh.base.config.Config;
 import com.linsh.base.config.FileConfig;
@@ -22,6 +23,7 @@ import com.linsh.utilseverywhere.ResourceUtils;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -90,17 +92,55 @@ public class LshConfig {
     }
 
     /**
-     * 获取配置文件, 文件名必须与类名相同
+     * 获取配置, 文件名必须与类名相同
      *
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      */
     @NonNull
     public static <T extends Config> T get(Class<T> configClass) {
+        return (T) get(configClass, false);
+    }
+
+    /**
+     * 获取 SD 卡配置文件目录
+     *
+     * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
+     */
+    public static File getConfigFile(Class<? extends Config> configClass) {
+        return getConfigFile(configClass, false);
+    }
+
+    /**
+     * 获取集合配置
+     *
+     * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
+     */
+    @NonNull
+    public static <T extends Config> List<T> getList(Class<T> configClass) {
+        return (List<T>) get(configClass, true);
+    }
+
+    /**
+     * 获取 SD 卡配置文件目录
+     *
+     * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
+     */
+    public static File getArrayConfigFile(Class<? extends Config> configClass) {
+        return getConfigFile(configClass, true);
+    }
+
+    /**
+     * 获取配置
+     *
+     * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
+     */
+    @NonNull
+    private static Object get(Class<? extends Config> configClass, boolean isList) {
         String filename = configClass.getSimpleName();
         Gson gson = new Gson();
 
         // 默认读取本地配置
-        File configFile = getConfigFile(configClass);
+        File configFile = getConfigFile(configClass, isList);
         String json = null;
         if (configFile != null) {
             try {
@@ -111,19 +151,23 @@ public class LshConfig {
         }
         if (json != null) {
             try {
-                return gson.fromJson(json, configClass);
+                if (isList) {
+                    return gson.fromJson(json, TypeToken.getParameterized(List.class, configClass).getType());
+                } else {
+                    return gson.fromJson(json, configClass);
+                }
             } catch (Exception e) {
                 Log.e(BuildConfig.TAG, "sdcard 配置文件 <" + filename + "> 解析出错, 请检查文本格式", e);
             }
         }
         // 其次读取 DefaultConfig
-        T config = (T) defaultConfigs.get(configClass);
+        Object config = defaultConfigs.get(configClass);
         if (config != null) {
             return config;
         }
         // 不再从 assets 读取配置，如果 defaultConfig 为 null，直接反射实例，使用 Config 类配置的默认字段
         try {
-            return (T) ClassUtils.newInstance(configClass);
+            return ClassUtils.newInstance(configClass);
         } catch (Exception e) {
             throw new RuntimeException("new instance for config class failed", e);
         }
@@ -134,13 +178,13 @@ public class LshConfig {
      *
      * @param configClass 定义配置文件的类, 配置类需实现 {@link Config} 接口
      */
-    public static File getConfigFile(Class<? extends Config> configClass) {
+    private static File getConfigFile(Class<? extends Config> configClass, boolean isList) {
         File dir = new File(config_dir_path_from_text, ContextUtils.getPackageName());
         if (!dir.exists()) {
             Log.w(BuildConfig.TAG, "config dir does not exist");
             return null;
         }
-        String name = configClass.getSimpleName();
+        String name = configClass.getSimpleName() + (isList ? "s" : "");
         String debugPostFix = AppUtils.isAppDebug() ? "@debug" : "";
         String serial = "@" + DeviceUtils.getMobileModel().replaceAll(" ", "");
         File file = new File(dir, name + debugPostFix + serial);
