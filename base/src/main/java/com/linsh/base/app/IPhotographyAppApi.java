@@ -32,6 +32,7 @@ public interface IPhotographyAppApi {
     int EXTRA_TYPE_BROWSE = 2;
     String RESULT_PATH = "path";
     String RESULT_MD5 = "md5";
+    String QUERY_TYPE_FILENAME = "文件名";
     String QUERY_TYPE_DESC = "内容";
     String QUERY_TYPE_PERSON = "友人帐";
     String QUERY_TYPE_TAG = "标签";
