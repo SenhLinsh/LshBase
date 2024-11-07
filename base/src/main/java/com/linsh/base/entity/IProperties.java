@@ -27,6 +27,10 @@ public interface IProperties {
 
     void put(String key, List<?> value);
 
+    void putTags(String key, String[] value);
+
+    void putTags(String key, List<?> value);
+
     String get(String key);
 
     int getInt(String key);
